@@ -38,7 +38,7 @@ function App() {
 
             <a
               className="button secondary"
-              href="https://github.com/"
+              href="https://github.com/tetousz"
               target="_blank"
               rel="noreferrer"
             >
