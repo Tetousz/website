@@ -1,0 +1,314 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  font-family: Inter, system-ui, sans-serif;
+  color: #e6edf3;
+  background: #0d1117;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+
+  background:
+    radial-gradient(
+      circle at 20% 0%,
+      rgba(59, 130, 246, 0.12),
+      transparent 35%
+    ),
+    #0d1117;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.site {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 0 30px;
+}
+
+.navbar {
+  height: 85px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  border-bottom: 1px solid #21262d;
+}
+
+.logo {
+  font-family: "JetBrains Mono", monospace;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.logo::before {
+  content: "> ";
+  color: #58a6ff;
+}
+
+.nav-links {
+  display: flex;
+  gap: 30px;
+
+  font-size: 14px;
+  color: #8b949e;
+}
+
+.nav-links a {
+  transition: 0.2s;
+}
+
+.nav-links a:hover {
+  color: #58a6ff;
+}
+
+.hero {
+  min-height: 78vh;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  max-width: 850px;
+}
+
+.eyebrow,
+.section-label {
+  font-family: "JetBrains Mono", monospace;
+
+  color: #58a6ff;
+
+  font-size: 14px;
+}
+
+.hero h1 {
+  margin: 10px 0 0;
+
+  font-size: clamp(60px, 10vw, 110px);
+  line-height: 0.95;
+
+  letter-spacing: -5px;
+}
+
+.hero h2 {
+  margin: 20px 0;
+
+  font-size: clamp(26px, 4vw, 46px);
+
+  color: #8b949e;
+
+  letter-spacing: -2px;
+}
+
+.hero-text {
+  max-width: 650px;
+
+  color: #8b949e;
+
+  font-size: 18px;
+  line-height: 1.7;
+}
+
+.hero-buttons {
+  display: flex;
+  gap: 15px;
+
+  margin-top: 25px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 13px 22px;
+
+  border-radius: 8px;
+
+  font-weight: 600;
+  font-size: 14px;
+
+  transition:
+    transform 0.2s,
+    background 0.2s;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+}
+
+.primary {
+  background: #238636;
+  color: white;
+}
+
+.primary:hover {
+  background: #2ea043;
+}
+
+.secondary {
+  border: 1px solid #30363d;
+
+  background: #161b22;
+}
+
+.secondary:hover {
+  background: #21262d;
+}
+
+.section {
+  padding: 100px 0;
+
+  border-top: 1px solid #21262d;
+}
+
+.section h2 {
+  margin: 10px 0 30px;
+
+  font-size: 42px;
+
+  letter-spacing: -2px;
+}
+
+.section > p:not(.section-label) {
+  max-width: 750px;
+
+  color: #8b949e;
+
+  font-size: 17px;
+  line-height: 1.8;
+}
+
+.project-grid {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 18px;
+}
+
+.project-card {
+  padding: 25px;
+
+  border: 1px solid #30363d;
+  border-radius: 10px;
+
+  background: #161b22;
+
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
+}
+
+.project-card:hover {
+  transform: translateY(-5px);
+
+  border-color: #58a6ff;
+}
+
+.project-card h3 {
+  margin-top: 0;
+
+  font-size: 20px;
+}
+
+.project-card p {
+  min-height: 90px;
+
+  color: #8b949e;
+
+  line-height: 1.6;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px;
+
+  margin-top: 20px;
+}
+
+.tags span,
+.skills span {
+  font-family: "JetBrains Mono", monospace;
+
+  font-size: 12px;
+
+  padding: 6px 10px;
+
+  border: 1px solid #30363d;
+  border-radius: 6px;
+
+  color: #58a6ff;
+
+  background: #0d1117;
+}
+
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 12px;
+}
+
+.skills span {
+  font-size: 14px;
+
+  padding: 10px 15px;
+}
+
+.contact {
+  min-height: 450px;
+}
+
+.contact .button {
+  margin-top: 20px;
+}
+
+footer {
+  padding: 35px 0;
+
+  border-top: 1px solid #21262d;
+
+  color: #8b949e;
+
+  font-family: "JetBrains Mono", monospace;
+
+  font-size: 12px;
+}
+
+@media (max-width: 800px) {
+  .nav-links {
+    display: none;
+  }
+
+  .hero h1 {
+    letter-spacing: -3px;
+  }
+
+  .project-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .section {
+    padding: 70px 0;
+  }
+}
