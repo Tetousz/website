@@ -24,62 +24,20 @@ function ChessBoard() {
   const [selectedSquare, setSelectedSquare] = useState(null)
   const [legalSquares, setLegalSquares] = useState([])
   const [lastMove, setLastMove] = useState(null)
+  const [pendingPromotion, setPendingPromotion] = useState(null)
 
   function getSquare(row, col) {
     return `${FILES[col]}${8 - row}`
   }
 
-  function selectSquare(square) {
-    const piece = game.get(square)
-
-    // Nothing selected yet
-    if (!selectedSquare) {
-      if (!piece) return
-
-      // Only select pieces belonging to the player whose turn it is
-      if (piece.color !== game.turn()) return
-
-      const moves = game.moves({
-        square,
-        verbose: true,
-      })
-
-      setSelectedSquare(square)
-      setLegalSquares(moves.map((move) => move.to))
-
-      return
-    }
-
-    // Clicking the selected square again deselects it
-    if (square === selectedSquare) {
-      setSelectedSquare(null)
-      setLegalSquares([])
-      return
-    }
-
-    // If another friendly piece is clicked, select that instead
-    if (piece && piece.color === game.turn()) {
-      const moves = game.moves({
-        square,
-        verbose: true,
-      })
-
-      setSelectedSquare(square)
-      setLegalSquares(moves.map((move) => move.to))
-      return
-    }
-
-    // Try making the move
+  function finishMove(from, to, promotion = undefined) {
     try {
       const newGame = new Chess(game.fen())
 
       const move = newGame.move({
-        from: selectedSquare,
-        to: square,
-
-        // Temporary Phase 2 behavior:
-        // automatically promote pawns to queens.
-        promotion: 'q',
+        from,
+        to,
+        ...(promotion ? { promotion } : {}),
       })
 
       if (!move) return
@@ -93,18 +51,101 @@ function ChessBoard() {
 
       setSelectedSquare(null)
       setLegalSquares([])
+      setPendingPromotion(null)
     } catch {
-      // Illegal move
       setSelectedSquare(null)
       setLegalSquares([])
+      setPendingPromotion(null)
     }
   }
 
+  function choosePromotion(piece) {
+    if (!pendingPromotion) return
+
+    finishMove(
+      pendingPromotion.from,
+      pendingPromotion.to,
+      piece
+    )
+  }
+
+  function selectSquare(square) {
+    // Don't allow board interaction while choosing promotion
+    if (pendingPromotion) return
+
+    const piece = game.get(square)
+
+    // Nothing selected yet
+    if (!selectedSquare) {
+      if (!piece) return
+
+      // Only select pieces belonging to the current player
+      if (piece.color !== game.turn()) return
+
+      const moves = game.moves({
+        square,
+        verbose: true,
+      })
+
+      setSelectedSquare(square)
+      setLegalSquares(moves.map((move) => move.to))
+
+      return
+    }
+
+    // Clicking selected square again deselects it
+    if (square === selectedSquare) {
+      setSelectedSquare(null)
+      setLegalSquares([])
+      return
+    }
+
+    // Select another friendly piece
+    if (piece && piece.color === game.turn()) {
+      const moves = game.moves({
+        square,
+        verbose: true,
+      })
+
+      setSelectedSquare(square)
+      setLegalSquares(moves.map((move) => move.to))
+
+      return
+    }
+
+    // Check whether this is a pawn promotion
+    const selectedPiece = game.get(selectedSquare)
+    const targetRank = square[1]
+
+    const isPromotion =
+      selectedPiece?.type === 'p' &&
+      (
+        (selectedPiece.color === 'w' && targetRank === '8') ||
+        (selectedPiece.color === 'b' && targetRank === '1')
+      )
+
+    if (isPromotion) {
+      setPendingPromotion({
+        from: selectedSquare,
+        to: square,
+        color: selectedPiece.color,
+      })
+
+      return
+    }
+
+    finishMove(selectedSquare, square)
+  }
+
+  // THIS is the restart/reset function I was referring to
   function restartGame() {
     setGame(new Chess())
     setSelectedSquare(null)
     setLegalSquares([])
     setLastMove(null)
+
+    // Reset/cancel any pending promotion
+    setPendingPromotion(null)
   }
 
   function getStatus() {
@@ -147,24 +188,67 @@ function ChessBoard() {
 
   return (
     <div className="game-container">
+
+      {/* PROMOTION WINDOW */}
+      {pendingPromotion && (
+        <div className="promotion-overlay">
+          <div className="promotion-dialog">
+
+            <h2>Choose promotion</h2>
+
+            <div className="promotion-options">
+
+              <button onClick={() => choosePromotion('q')}>
+                {pendingPromotion.color === 'w' ? '♕' : '♛'}
+                <span>Queen</span>
+              </button>
+
+              <button onClick={() => choosePromotion('r')}>
+                {pendingPromotion.color === 'w' ? '♖' : '♜'}
+                <span>Rook</span>
+              </button>
+
+              <button onClick={() => choosePromotion('b')}>
+                {pendingPromotion.color === 'w' ? '♗' : '♝'}
+                <span>Bishop</span>
+              </button>
+
+              <button onClick={() => choosePromotion('n')}>
+                {pendingPromotion.color === 'w' ? '♘' : '♞'}
+                <span>Knight</span>
+              </button>
+
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* GAME STATUS */}
       <div className="game-status">
         {getStatus()}
       </div>
 
+      {/* BOARD */}
       <div className="chess-board">
         {board.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             const square = getSquare(rowIndex, colIndex)
 
-            const isLight = (rowIndex + colIndex) % 2 === 0
+            const isLight =
+              (rowIndex + colIndex) % 2 === 0
 
-            const isSelected = selectedSquare === square
+            const isSelected =
+              selectedSquare === square
 
-            const isLegal = legalSquares.includes(square)
+            const isLegal =
+              legalSquares.includes(square)
 
             const isLastMove =
               lastMove &&
-              (lastMove.from === square || lastMove.to === square)
+              (
+                lastMove.from === square ||
+                lastMove.to === square
+              )
 
             const pieceSymbol = piece
               ? PIECES[`${piece.color}${piece.type}`]
@@ -183,6 +267,7 @@ function ChessBoard() {
                 onClick={() => selectSquare(square)}
                 aria-label={square}
               >
+
                 {pieceSymbol && (
                   <span
                     className={`chess-piece ${
@@ -214,12 +299,14 @@ function ChessBoard() {
                     {FILES[colIndex]}
                   </span>
                 )}
+
               </button>
             )
           })
         )}
       </div>
 
+      {/* CONTROLS */}
       <div className="game-controls">
         <button
           className="restart-button"
@@ -228,6 +315,7 @@ function ChessBoard() {
           Restart Game
         </button>
       </div>
+
     </div>
   )
 }
