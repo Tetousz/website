@@ -255,3 +255,403 @@
     padding: 0 16px;
   }
 }
+
+
+/* Lobby section niga */
+
+.chess-main {
+  align-items: flex-start;
+}
+
+.lobby {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 40px auto;
+}
+
+.lobby-hero {
+  text-align: center;
+
+  margin-bottom: 35px;
+}
+
+.lobby-piece {
+  font-size: 60px;
+
+  margin-bottom: 5px;
+}
+
+.lobby-hero h1 {
+  margin: 0;
+
+  font-size: 38px;
+}
+
+.lobby-hero p {
+  margin-top: 8px;
+
+  color: #888;
+}
+
+.lobby-card {
+  width: 100%;
+  max-width: 500px;
+
+  margin: 0 auto;
+
+  padding: 28px;
+
+  box-sizing: border-box;
+
+  background: #181818;
+
+  border: 1px solid #303030;
+  border-radius: 10px;
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+
+/* USERNAME */
+
+.username-field {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.username-field label,
+.join-section label {
+  font-size: 13px;
+  font-weight: 600;
+
+  color: #aaa;
+}
+
+.username-field input,
+.game-code-input {
+  width: 100%;
+
+  box-sizing: border-box;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+
+  background: #101010;
+  color: #eee;
+
+  padding: 12px 14px;
+
+  outline: none;
+
+  font-size: 15px;
+}
+
+.username-field input:focus,
+.game-code-input:focus {
+  border-color: #777;
+}
+
+
+/* ERRORS */
+
+.input-error {
+  margin: 2px 0 0;
+
+  color: #e87979;
+
+  font-size: 12px;
+}
+
+
+/* CREATE */
+
+.create-game-button {
+  width: 100%;
+
+  margin-top: 20px;
+
+  padding: 13px;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: #eeeeee;
+  color: #111111;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+}
+
+.create-game-button:hover {
+  background: #ffffff;
+}
+
+
+/* DIVIDER */
+
+.lobby-divider {
+  display: flex;
+  align-items: center;
+
+  margin: 25px 0;
+
+  color: #666;
+
+  font-size: 11px;
+}
+
+.lobby-divider::before,
+.lobby-divider::after {
+  content: "";
+
+  flex: 1;
+
+  height: 1px;
+
+  background: #333;
+}
+
+.lobby-divider span {
+  padding: 0 12px;
+}
+
+
+/* JOIN */
+
+.join-section {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.join-row {
+  display: flex;
+
+  gap: 8px;
+}
+
+.game-code-input {
+  flex: 1;
+
+  letter-spacing: 6px;
+
+  font-size: 18px;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+.join-game-button {
+  padding: 0 24px;
+
+  border: 1px solid #444;
+  border-radius: 6px;
+
+  background: #222;
+  color: #eee;
+
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.join-game-button:hover {
+  background: #303030;
+}
+
+
+/* ================================
+   CURRENT GAMES
+   ================================ */
+
+.games-section {
+  margin-top: 50px;
+}
+
+.games-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-bottom: 12px;
+
+  border-bottom: 1px solid #292929;
+}
+
+.games-heading h2 {
+  margin: 0;
+
+  font-size: 18px;
+}
+
+.game-count {
+  color: #666;
+
+  font-size: 12px;
+}
+
+.empty-games {
+  min-height: 180px;
+
+  display: flex;
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  color: #666;
+}
+
+.empty-games span {
+  font-size: 35px;
+
+  opacity: 0.4;
+}
+
+.empty-games p {
+  margin: 10px 0 2px;
+
+  color: #888;
+}
+
+.empty-games small {
+  color: #555;
+}
+
+
+/* ================================
+   HEADER
+   ================================ */
+
+.chess-header {
+  justify-content: space-between;
+}
+
+.chess-header-right {
+  display: flex;
+  align-items: center;
+
+  gap: 18px;
+}
+
+.header-username {
+  color: #888;
+
+  font-size: 13px;
+}
+
+.portfolio-link {
+  color: #bbb;
+
+  text-decoration: none;
+
+  font-size: 13px;
+}
+
+.portfolio-link:hover {
+  color: white;
+}
+
+
+/* ================================
+   GAME PAGE
+   ================================ */
+
+.game-page {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 20px auto 50px;
+}
+
+.game-page-top {
+  width: min(78vw, 680px);
+
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.game-code-label {
+  color: #666;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 2px;
+}
+
+.game-page-top h1 {
+  margin: 2px 0 0;
+
+  font-size: 21px;
+}
+
+.back-lobby-button {
+  color: #aaa;
+
+  text-decoration: none;
+
+  font-size: 13px;
+}
+
+.back-lobby-button:hover {
+  color: white;
+}
+
+.game-warning {
+  width: min(78vw, 680px);
+
+  box-sizing: border-box;
+
+  margin: 0 auto 15px;
+
+  padding: 10px 14px;
+
+  border: 1px solid #665329;
+  border-radius: 5px;
+
+  background: #2a2416;
+  color: #d8c58d;
+
+  font-size: 13px;
+}
+
+
+/* ================================
+   MOBILE
+   ================================ */
+
+@media (max-width: 700px) {
+
+  .lobby {
+    margin-top: 20px;
+  }
+
+  .lobby-card {
+    padding: 20px;
+  }
+
+  .lobby-hero h1 {
+    font-size: 30px;
+  }
+
+  .game-page-top,
+  .game-warning {
+    width: min(94vw, 600px);
+  }
+
+  .header-username {
+    display: none;
+  }
+
+}
