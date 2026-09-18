@@ -1,10 +1,22 @@
 import './ChessApp.css'
+import ChessBoard from './components/ChessBoard'
 
 function ChessApp() {
   return (
     <div className="chess-app">
-      <h1>♟ Ferretusz Chess</h1>
-      <p>Chess is coming...</p>
+      <header className="chess-header">
+        <a href="/" className="chess-logo">
+          Ferretusz
+        </a>
+
+        <span className="chess-title">
+          Chess
+        </span>
+      </header>
+
+      <main className="chess-main">
+        <ChessBoard />
+      </main>
     </div>
   )
 }
