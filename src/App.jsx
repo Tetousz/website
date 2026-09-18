@@ -3,8 +3,13 @@ import heroImg from './assets/hero.png'
 import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
+import ChessApp from './chess/ChessApp'
 
 function App() {
+  if (window.location.pathname.startsWith('/chess')) {
+    return <ChessApp />
+  }
+
   return (
     <div className="site">
       <nav className="navbar">
@@ -17,6 +22,8 @@ function App() {
           <a href="#contact">Contact</a>
         </div>
       </nav>
+
+ 
 
       <main>
         <section className="hero">
