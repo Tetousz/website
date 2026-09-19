@@ -16,6 +16,7 @@ import {
 } from './lib/supabase'
 
 import ChessBoard from './components/ChessBoard'
+import MoveHistory from './components/MoveHistory'
 import Lobby from './components/Lobby'
 
 import {
@@ -57,6 +58,7 @@ function ChessApp() {
 
   return (
     <div className="chess-app">
+
       <header className="chess-header">
 
         <a
@@ -82,6 +84,7 @@ function ChessApp() {
           </a>
 
         </div>
+
       </header>
 
       <main className="chess-main">
@@ -97,6 +100,7 @@ function ChessApp() {
         )}
 
       </main>
+
     </div>
   )
 }
@@ -156,6 +160,7 @@ function GamePage({
           setError(
             'Game not found.'
           )
+
           return
         }
 
@@ -177,7 +182,9 @@ function GamePage({
     }
 
     loadGame()
-  }, [gameCode])
+  }, [
+    gameCode,
+  ])
 
   useEffect(() => {
     const channel =
@@ -225,7 +232,9 @@ function GamePage({
         channel
       )
     }
-  }, [gameCode])
+  }, [
+    gameCode,
+  ])
 
   let playerColor =
     null
@@ -238,12 +247,14 @@ function GamePage({
       game.white_id ===
       currentUser.id
     ) {
-      playerColor = 'w'
+      playerColor =
+        'w'
     } else if (
       game.black_id ===
       currentUser.id
     ) {
-      playerColor = 'b'
+      playerColor =
+        'b'
     }
   }
 
@@ -512,6 +523,7 @@ function GamePage({
         <div className="game-page-top">
 
           <div>
+
             <span className="game-code-label">
               GAME
             </span>
@@ -519,6 +531,7 @@ function GamePage({
             <h1>
               #{gameCode}
             </h1>
+
           </div>
 
           <a
@@ -544,6 +557,7 @@ function GamePage({
       <div className="game-page-top">
 
         <div>
+
           <span className="game-code-label">
             GAME
           </span>
@@ -551,6 +565,7 @@ function GamePage({
           <h1>
             #{game.id}
           </h1>
+
         </div>
 
         <a
@@ -675,35 +690,49 @@ function GamePage({
           </button>
         )}
 
-      <ChessBoard
-        gameId={
-          game.id
-        }
+      <div className="game-play-area">
 
-        playerColor={
-          playerColor
-        }
+        <ChessBoard
+          gameId={
+            game.id
+          }
 
-        fen={
-          game.fen
-        }
+          playerColor={
+            playerColor
+          }
 
-        gameStatus={
-          game.status
-        }
+          fen={
+            game.fen
+          }
 
-        winner={
-          game.winner
-        }
+          moves={
+            game.moves || []
+          }
 
-        result={
-          game.result
-        }
+          gameStatus={
+            game.status
+          }
 
-        onGameUpdate={
-          setGame
-        }
-      />
+          winner={
+            game.winner
+          }
+
+          result={
+            game.result
+          }
+
+          onGameUpdate={
+            setGame
+          }
+        />
+
+        <MoveHistory
+          moves={
+            game.moves || []
+          }
+        />
+
+      </div>
 
     </div>
   )

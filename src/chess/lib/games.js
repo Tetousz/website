@@ -119,6 +119,7 @@ export async function submitMove({
   expectedFen,
   newFen,
   newPgn,
+  newMoves,
   newTurn,
 
   gameFinished = false,
@@ -142,6 +143,9 @@ export async function submitMove({
 
       new_pgn:
         newPgn,
+
+      new_moves:
+        newMoves,
 
       new_turn:
         newTurn,
@@ -282,6 +286,9 @@ export async function createGame(
 
       pgn:
         '',
+
+      moves:
+        [],
 
       turn:
         'w',

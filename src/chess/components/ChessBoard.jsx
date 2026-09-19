@@ -6,9 +6,6 @@ import {
 import { Chess } from 'chess.js'
 import { submitMove } from '../lib/games'
 
-const STARTING_FEN =
-  'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-
 const PIECES = {
   wp: '♙',
   wn: '♘',
@@ -36,73 +33,66 @@ const FILES = [
   'h',
 ]
 
-function createGameFromState(
-  fen,
-  pgn
+function createGameFromMoves(
+  moves,
+  expectedFen = null
 ) {
-  /*
-   * PGN is preferred because it
-   * contains the complete move
-   * history.
-   *
-   * FEN only contains the current
-   * board position.
-   */
-  if (
-    pgn &&
-    pgn.trim()
+  const chess =
+    new Chess()
+
+  const moveHistory =
+    Array.isArray(moves)
+      ? moves
+      : []
+
+  for (
+    const move of moveHistory
   ) {
-    try {
-      const historyGame =
-        new Chess()
+    const moveData = {
+      from:
+        move.from,
 
-      historyGame.loadPgn(
-        pgn
+      to:
+        move.to,
+    }
+
+    if (
+      move.promotion
+    ) {
+      moveData.promotion =
+        move.promotion
+    }
+
+    const result =
+      chess.move(
+        moveData
       )
 
-      /*
-       * Never blindly trust that the
-       * PGN and database FEN agree.
-       */
-      if (
-        historyGame.fen() ===
-        fen
-      ) {
-        return historyGame
-      }
-
-      console.warn(
-        'PGN/FEN mismatch. Falling back to FEN.'
-      )
-    } catch (error) {
-      console.warn(
-        'Could not load PGN. Falling back to FEN:',
-        error
+    if (!result) {
+      throw new Error(
+        'Stored move history contains an invalid move.'
       )
     }
   }
 
-  /*
-   * For a brand-new game, use the
-   * normal Chess constructor so the
-   * generated PGN starts cleanly.
-   */
   if (
-    fen === STARTING_FEN
+    expectedFen &&
+    chess.fen() !==
+      expectedFen
   ) {
-    return new Chess()
+    throw new Error(
+      'Stored move history does not match the current position.'
+    )
   }
 
-  return new Chess(
-    fen
-  )
+  return chess
 }
 
 function ChessBoard({
   gameId,
   playerColor = null,
   fen,
-  pgn = '',
+  moves = [],
   gameStatus = 'playing',
   winner = null,
   result = null,
@@ -111,13 +101,23 @@ function ChessBoard({
   const [
     game,
     setGame,
-  ] = useState(
-    () =>
-      createGameFromState(
-        fen,
-        pgn
+  ] = useState(() => {
+    try {
+      return createGameFromMoves(
+        moves,
+        fen
       )
-  )
+    } catch (error) {
+      console.error(
+        'Could not reconstruct game:',
+        error
+      )
+
+      return new Chess(
+        fen
+      )
+    }
+  })
 
   const [
     selectedSquare,
@@ -156,9 +156,9 @@ function ChessBoard({
 
     try {
       const newGame =
-        createGameFromState(
-          fen,
-          pgn
+        createGameFromMoves(
+          moves,
+          fen
         )
 
       setGame(
@@ -176,15 +176,58 @@ function ChessBoard({
       setPendingPromotion(
         null
       )
+
+      if (
+        Array.isArray(moves) &&
+        moves.length > 0
+      ) {
+        const latestMove =
+          moves[
+            moves.length - 1
+          ]
+
+        setLastMove({
+          from:
+            latestMove.from,
+
+          to:
+            latestMove.to,
+        })
+      } else {
+        setLastMove(
+          null
+        )
+      }
     } catch (error) {
       console.error(
-        'Invalid game state:',
+        'Could not reconstruct game state:',
         error
       )
+
+      /*
+       * Legacy games created before
+       * move history existed can still
+       * display their final/current
+       * board from FEN.
+       */
+      try {
+        setGame(
+          new Chess(
+            fen
+          )
+        )
+      } catch (
+        fenError
+      ) {
+        console.error(
+          'Invalid FEN:',
+          fenError
+        )
+      }
     }
   }, [
     fen,
-    pgn,
+    moves,
   ])
 
   function getSquare(
@@ -321,35 +364,14 @@ function ChessBoard({
 
     try {
       /*
-       * Rebuild from the COMPLETE
-       * stored PGN before making the
-       * next move.
-       *
-       * This preserves repetition
-       * history and produces a full
-       * PGN instead of a one-move PGN.
+       * Reconstruct the entire game
+       * before every submitted move.
        */
       const newGame =
-        createGameFromState(
-          expectedFen,
-          pgn
+        createGameFromMoves(
+          moves,
+          expectedFen
         )
-
-      /*
-       * Safety check.
-       *
-       * The reconstructed state must
-       * match the exact board state
-       * we're trying to update.
-       */
-      if (
-        newGame.fen() !==
-        expectedFen
-      ) {
-        throw new Error(
-          'Game history does not match the current position.'
-        )
-      }
 
       const move =
         newGame.move({
@@ -367,6 +389,41 @@ function ChessBoard({
         return
       }
 
+      /*
+       * Store only the information
+       * required to replay the move.
+       */
+      const storedMove = {
+        from:
+          move.from,
+
+        to:
+          move.to,
+      }
+
+      if (
+        move.promotion
+      ) {
+        storedMove.promotion =
+          move.promotion
+      }
+
+      const currentMoves =
+        Array.isArray(moves)
+          ? moves
+          : []
+
+      const newMoves = [
+        ...currentMoves,
+        storedMove,
+      ]
+
+      /*
+       * Because newGame was created by
+       * replaying every previous move,
+       * chess.js now has the complete
+       * repetition history here.
+       */
       const gameResult =
         getGameResult(
           newGame
@@ -387,12 +444,10 @@ function ChessBoard({
           newFen:
             newGame.fen(),
 
-          /*
-           * This is now the complete
-           * game PGN.
-           */
           newPgn:
             newGame.pgn(),
+
+          newMoves,
 
           newTurn:
             newGame.turn(),
@@ -408,9 +463,9 @@ function ChessBoard({
         })
 
       const updatedChess =
-        createGameFromState(
-          updatedGame.fen,
-          updatedGame.pgn
+        createGameFromMoves(
+          updatedGame.moves,
+          updatedGame.fen
         )
 
       setGame(
@@ -457,16 +512,21 @@ function ChessBoard({
 
       try {
         setGame(
-          createGameFromState(
-            fen,
-            pgn
+          createGameFromMoves(
+            moves,
+            fen
           )
         )
       } catch {
-        /*
-         * Ignore invalid fallback
-         * state.
-         */
+        try {
+          setGame(
+            new Chess(
+              fen
+            )
+          )
+        } catch {
+          // Ignore invalid fallback.
+        }
       }
 
       setSelectedSquare(
@@ -558,7 +618,7 @@ function ChessBoard({
         return
       }
 
-      const moves =
+      const availableMoves =
         game.moves({
           square,
           verbose: true,
@@ -569,9 +629,9 @@ function ChessBoard({
       )
 
       setLegalSquares(
-        moves.map(
-          (move) =>
-            move.to
+        availableMoves.map(
+          (availableMove) =>
+            availableMove.to
         )
       )
 
@@ -598,7 +658,7 @@ function ChessBoard({
       piece.color ===
         playerColor
     ) {
-      const moves =
+      const availableMoves =
         game.moves({
           square,
           verbose: true,
@@ -609,9 +669,9 @@ function ChessBoard({
       )
 
       setLegalSquares(
-        moves.map(
-          (move) =>
-            move.to
+        availableMoves.map(
+          (availableMove) =>
+            availableMove.to
         )
       )
 
