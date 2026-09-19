@@ -1,10 +1,27 @@
+import { useEffect } from 'react'
 import './ChessApp.css'
 
 import ChessBoard from './components/ChessBoard'
 import Lobby from './components/Lobby'
 import { getUsername } from './lib/identity'
+import { ensureAnonymousUser } from './lib/auth'
 
 function ChessApp() {
+  useEffect(() => {
+    async function initializeChess() {
+      try {
+        await ensureAnonymousUser()
+      } catch (error) {
+        console.error(
+          'Failed to initialize chess backend:',
+          error
+        )
+      }
+    }
+
+    initializeChess()
+  }, [])
+
   const path = window.location.pathname
 
   const gameMatch = path.match(
