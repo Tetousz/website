@@ -1,19 +1,41 @@
 import { useState } from 'react'
+
 import UsernameInput from './UsernameInput'
+
 import {
   getUsername,
   saveUsername,
   validateUsername,
 } from '../lib/identity'
 
+import { ensureAnonymousUser } from '../lib/auth'
+import {
+  createGame,
+  joinGame as joinDatabaseGame,
+} from '../lib/games'
+
 function Lobby() {
-  const [username, setUsername] = useState(() => getUsername())
-  const [usernameError, setUsernameError] = useState('')
-  const [gameCode, setGameCode] = useState('')
-  const [codeError, setCodeError] = useState('')
+  const [username, setUsername] =
+    useState(() => getUsername())
+
+  const [usernameError, setUsernameError] =
+    useState('')
+
+  const [gameCode, setGameCode] =
+    useState('')
+
+  const [codeError, setCodeError] =
+    useState('')
+
+  const [creatingGame, setCreatingGame] =
+    useState(false)
+
+  const [gameError, setGameError] =
+    useState('')
 
   function prepareUsername() {
-    const error = validateUsername(username)
+    const error =
+      validateUsername(username)
 
     if (error) {
       setUsernameError(error)
@@ -32,29 +54,57 @@ function Lobby() {
     if (usernameError) {
       setUsernameError('')
     }
+
+    if (gameError) {
+      setGameError('')
+    }
   }
 
-  function createGame() {
-    if (!prepareUsername()) return
-
-    /*
-      TEMPORARY PHASE 3 BEHAVIOR
-
-      We don't have Supabase yet, so this does NOT
-      create a real online room.
-
-      Phase 5 will replace this with database room creation.
-    */
-
-    const code = Math.floor(Math.random() * 10000)
-      .toString()
-      .padStart(4, '0')
-
-    window.location.href = `/chess/id/${code}`
+  async function handleCreateGame() {
+  if (!prepareUsername()) {
+    return
   }
+
+  setGameError('')
+  setCreatingGame(true)
+
+  try {
+    const user =
+      await ensureAnonymousUser()
+
+    const game =
+      await createGame(
+        user,
+        username.trim()
+      )
+
+    window.location.href =
+      `/chess/id/${game.id}`
+  } catch (error) {
+    console.error(
+      'Failed to create game:',
+      error
+    )
+
+    if (
+      error.code === 'ACTIVE_GAME_EXISTS' &&
+      error.game
+    ) {
+      window.location.href =
+        `/chess/id/${error.game.id}`
+
+      return
+    }
+
+    setGameError(
+      'Could not create the game. Please try again.'
+    )
+
+    setCreatingGame(false)
+  }
+}
 
   function handleCodeChange(value) {
-    // Remove everything except numbers
     const cleaned = value
       .replace(/\D/g, '')
       .slice(0, 4)
@@ -66,31 +116,69 @@ function Lobby() {
     }
   }
 
-  function joinGame() {
-    if (!prepareUsername()) return
-
-    if (!/^\d{4}$/.test(gameCode)) {
-      setCodeError('Enter a 4-digit game code.')
-      return
-    }
-
-    setCodeError('')
-
-    /*
-      TEMPORARY PHASE 3 BEHAVIOR
-
-      Phase 5 will first check whether the room
-      actually exists.
-    */
-
-    window.location.href = `/chess/id/${gameCode}`
+async function handleJoinGame() {
+  if (!prepareUsername()) {
+    return
   }
 
-  function handleCodeKeyDown(event) {
-    if (event.key === 'Enter') {
-      joinGame()
+  if (!/^\d{4}$/.test(gameCode)) {
+    setCodeError(
+      'Enter a 4-digit game code.'
+    )
+    return
+  }
+
+  setCodeError('')
+
+  try {
+    await ensureAnonymousUser()
+
+    await joinDatabaseGame(
+      gameCode,
+      username.trim()
+    )
+
+    window.location.href =
+      `/chess/id/${gameCode}`
+  } catch (error) {
+    console.error(
+      'Failed to join game:',
+      error
+    )
+
+    const message =
+      error.message || ''
+
+    if (message.includes('Game not found')) {
+      setCodeError('Game not found.')
+    } else if (
+      message.includes(
+        'already have an active game'
+      )
+    ) {
+      setCodeError(
+        'You already have another active game.'
+      )
+    } else if (
+      message.includes('not joinable') ||
+      message.includes('Game is full')
+    ) {
+      setCodeError(
+        'This game can no longer be joined.'
+      )
+    } else {
+      setCodeError(
+        'Could not join this game.'
+      )
     }
   }
+}
+
+function handleCodeKeyDown(event) {
+  if (event.key === 'Enter') {
+    handleJoinGame()
+  }
+}
 
   return (
     <div className="lobby">
@@ -116,11 +204,21 @@ function Lobby() {
         />
 
         <button
+          type="button"
           className="create-game-button"
-          onClick={createGame}
+          onClick={handleCreateGame}
+          disabled={creatingGame}
         >
-          Create Game
+          {creatingGame
+            ? 'Creating...'
+            : 'Create Game'}
         </button>
+
+        {gameError && (
+          <p className="input-error">
+            {gameError}
+          </p>
+        )}
 
         <div className="lobby-divider">
           <span>OR</span>
@@ -143,14 +241,19 @@ function Lobby() {
               maxLength={4}
               placeholder="4821"
               onChange={(event) =>
-                handleCodeChange(event.target.value)
+                handleCodeChange(
+                  event.target.value
+                )
               }
-              onKeyDown={handleCodeKeyDown}
+              onKeyDown={
+                handleCodeKeyDown
+              }
             />
 
             <button
+              type="button"
               className="join-game-button"
-              onClick={joinGame}
+              onClick={handleJoinGame}
             >
               Join
             </button>

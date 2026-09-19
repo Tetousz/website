@@ -19,7 +19,9 @@ const PIECES = {
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']
 
-function ChessBoard() {
+function ChessBoard({
+  playerColor = 'w',
+}) {
   const [game, setGame] = useState(() => new Chess())
   const [selectedSquare, setSelectedSquare] = useState(null)
   const [legalSquares, setLegalSquares] = useState([])
@@ -27,9 +29,12 @@ function ChessBoard() {
   const [pendingPromotion, setPendingPromotion] = useState(null)
 
   function getSquare(row, col) {
-    return `${FILES[col]}${8 - row}`
-  }
+    if (playerColor === 'b') {
+        return `${FILES[7 - col]}${row + 1}`
+    }
 
+    return `${FILES[col]}${8 - row}`
+    }
   function finishMove(from, to, promotion = undefined) {
     try {
       const newGame = new Chess(game.fen())
@@ -185,6 +190,15 @@ function ChessBoard() {
   }
 
   const board = game.board()
+  const displayBoard =
+  playerColor === 'b'
+    ? board
+        .slice()
+        .reverse()
+        .map((row) =>
+          row.slice().reverse()
+        )
+    : board
 
   return (
     <div className="game-container">
@@ -230,7 +244,7 @@ function ChessBoard() {
 
       {/* BOARD */}
       <div className="chess-board">
-        {board.map((row, rowIndex) =>
+        {displayBoard.map((row, rowIndex) =>
           row.map((piece, colIndex) => {
             const square = getSquare(rowIndex, colIndex)
 
@@ -289,15 +303,19 @@ function ChessBoard() {
                 )}
 
                 {colIndex === 0 && (
-                  <span className="rank-label">
-                    {8 - rowIndex}
-                  </span>
+                    <span className="rank-label">
+                        {playerColor === 'b'
+                        ? rowIndex + 1
+                        : 8 - rowIndex}
+                    </span>
                 )}
 
-                {rowIndex === 7 && (
-                  <span className="file-label">
-                    {FILES[colIndex]}
-                  </span>
+                    {rowIndex === 7 && (
+                    <span className="file-label">
+                        {playerColor === 'b'
+                        ? FILES[7 - colIndex]
+                        : FILES[colIndex]}
+                    </span>
                 )}
 
               </button>
