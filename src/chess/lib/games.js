@@ -4,18 +4,26 @@ const STARTING_FEN =
   'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
 function generateGameId() {
-  return Math.floor(Math.random() * 10000)
+  return Math.floor(
+    Math.random() * 10000
+  )
     .toString()
     .padStart(4, '0')
 }
 
 export async function getGames() {
-  const { data, error } = await supabase
+  const {
+    data,
+    error,
+  } = await supabase
     .from('games')
     .select('*')
-    .order('created_at', {
-      ascending: false,
-    })
+    .order(
+      'created_at',
+      {
+        ascending: false,
+      }
+    )
 
   if (error) {
     throw error
@@ -24,11 +32,19 @@ export async function getGames() {
   return data
 }
 
-export async function getGame(gameId) {
-  const { data, error } = await supabase
+export async function getGame(
+  gameId
+) {
+  const {
+    data,
+    error,
+  } = await supabase
     .from('games')
     .select('*')
-    .eq('id', gameId)
+    .eq(
+      'id',
+      gameId
+    )
     .maybeSingle()
 
   if (error) {
@@ -38,16 +54,31 @@ export async function getGame(gameId) {
   return data
 }
 
-
-export async function getActiveGameForUser(userId) {
-  const { data, error } = await supabase
+export async function getActiveGameForUser(
+  userId
+) {
+  const {
+    data,
+    error,
+  } = await supabase
     .from('games')
     .select('*')
-    .or(`white_id.eq.${userId},black_id.eq.${userId}`)
-    .in('status', ['waiting', 'playing'])
-    .order('created_at', {
-      ascending: false,
-    })
+    .or(
+      `white_id.eq.${userId},black_id.eq.${userId}`
+    )
+    .in(
+      'status',
+      [
+        'waiting',
+        'playing',
+      ]
+    )
+    .order(
+      'created_at',
+      {
+        ascending: false,
+      }
+    )
     .limit(1)
     .maybeSingle()
 
@@ -68,8 +99,11 @@ export async function joinGame(
   } = await supabase.rpc(
     'join_chess_game',
     {
-      target_game_id: gameId,
-      player_name: username,
+      target_game_id:
+        gameId,
+
+      player_name:
+        username,
     }
   )
 
@@ -79,7 +113,6 @@ export async function joinGame(
 
   return data
 }
-
 
 export async function submitMove({
   gameId,
@@ -87,6 +120,10 @@ export async function submitMove({
   newFen,
   newPgn,
   newTurn,
+
+  gameFinished = false,
+  gameWinner = null,
+  gameResult = null,
 }) {
   const {
     data,
@@ -94,11 +131,29 @@ export async function submitMove({
   } = await supabase.rpc(
     'submit_chess_move',
     {
-      target_game_id: gameId,
-      expected_fen: expectedFen,
-      new_fen: newFen,
-      new_pgn: newPgn,
-      new_turn: newTurn,
+      target_game_id:
+        gameId,
+
+      expected_fen:
+        expectedFen,
+
+      new_fen:
+        newFen,
+
+      new_pgn:
+        newPgn,
+
+      new_turn:
+        newTurn,
+
+      game_finished:
+        gameFinished,
+
+      game_winner:
+        gameWinner,
+
+      game_result:
+        gameResult,
     }
   )
 
@@ -109,14 +164,38 @@ export async function submitMove({
   return data
 }
 
-export async function cancelGame(gameId) {
+export async function resignGame(
+  gameId
+) {
+  const {
+    data,
+    error,
+  } = await supabase.rpc(
+    'resign_chess_game',
+    {
+      target_game_id:
+        gameId,
+    }
+  )
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
+export async function cancelGame(
+  gameId
+) {
   const {
     data,
     error,
   } = await supabase.rpc(
     'cancel_chess_game',
     {
-      target_game_id: gameId,
+      target_game_id:
+        gameId,
     }
   )
 
@@ -127,29 +206,42 @@ export async function cancelGame(gameId) {
   return data
 }
 
-
-export async function createGame(user, username) {
-  // First check whether this UUID already has
-  // a waiting or playing game.
+export async function createGame(
+  user,
+  username
+) {
   const existingGame =
-    await getActiveGameForUser(user.id)
+    await getActiveGameForUser(
+      user.id
+    )
 
   if (existingGame) {
     const error =
-      new Error('You already have an active game.')
+      new Error(
+        'You already have an active game.'
+      )
 
-    error.code = 'ACTIVE_GAME_EXISTS'
-    error.game = existingGame
+    error.code =
+      'ACTIVE_GAME_EXISTS'
+
+    error.game =
+      existingGame
 
     throw error
   }
 
-  // Try up to 20 random IDs in case of collisions.
-  for (let attempt = 0; attempt < 20; attempt++) {
-    const gameId = generateGameId()
+  for (
+    let attempt = 0;
+    attempt < 20;
+    attempt++
+  ) {
+    const gameId =
+      generateGameId()
 
     const existingId =
-      await getGame(gameId)
+      await getGame(
+        gameId
+      )
 
     if (existingId) {
       continue
@@ -159,30 +251,46 @@ export async function createGame(user, username) {
       Math.random() < 0.5
 
     const game = {
-      id: gameId,
-      status: 'waiting',
+      id:
+        gameId,
 
-      white_id: creatorIsWhite
-        ? user.id
-        : null,
+      status:
+        'waiting',
 
-      white_name: creatorIsWhite
-        ? username
-        : null,
+      white_id:
+        creatorIsWhite
+          ? user.id
+          : null,
 
-      black_id: creatorIsWhite
-        ? null
-        : user.id,
+      white_name:
+        creatorIsWhite
+          ? username
+          : null,
 
-      black_name: creatorIsWhite
-        ? null
-        : username,
+      black_id:
+        creatorIsWhite
+          ? null
+          : user.id,
 
-      fen: STARTING_FEN,
-      pgn: '',
-      turn: 'w',
-      winner: null,
-      result: null,
+      black_name:
+        creatorIsWhite
+          ? null
+          : username,
+
+      fen:
+        STARTING_FEN,
+
+      pgn:
+        '',
+
+      turn:
+        'w',
+
+      winner:
+        null,
+
+      result:
+        null,
     }
 
     const {
@@ -198,8 +306,10 @@ export async function createGame(user, username) {
       return data
     }
 
-    // ID collision: generate another ID.
-    if (error.code === '23505') {
+    if (
+      error.code ===
+      '23505'
+    ) {
       continue
     }
 
@@ -209,9 +319,4 @@ export async function createGame(user, username) {
   throw new Error(
     'Could not generate an available game ID.'
   )
-
-
-
-
-
 }

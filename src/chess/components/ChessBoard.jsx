@@ -37,31 +37,44 @@ function ChessBoard({
   gameId,
   playerColor = null,
   fen,
+  gameStatus = 'playing',
+  winner = null,
+  result = null,
   onGameUpdate,
 }) {
   const [game, setGame] = useState(
     () => new Chess(fen)
   )
 
-  const [selectedSquare, setSelectedSquare] =
-    useState(null)
+  const [
+    selectedSquare,
+    setSelectedSquare,
+  ] = useState(null)
 
-  const [legalSquares, setLegalSquares] =
-    useState([])
+  const [
+    legalSquares,
+    setLegalSquares,
+  ] = useState([])
 
-  const [lastMove, setLastMove] =
-    useState(null)
+  const [
+    lastMove,
+    setLastMove,
+  ] = useState(null)
 
   const [
     pendingPromotion,
     setPendingPromotion,
   ] = useState(null)
 
-  const [submittingMove, setSubmittingMove] =
-    useState(false)
+  const [
+    submittingMove,
+    setSubmittingMove,
+  ] = useState(false)
 
-  const [moveError, setMoveError] =
-    useState('')
+  const [
+    moveError,
+    setMoveError,
+  ] = useState('')
 
   useEffect(() => {
     if (!fen) {
@@ -69,7 +82,8 @@ function ChessBoard({
     }
 
     try {
-      const newGame = new Chess(fen)
+      const newGame =
+        new Chess(fen)
 
       setGame(newGame)
       setSelectedSquare(null)
@@ -83,12 +97,102 @@ function ChessBoard({
     }
   }, [fen])
 
-  function getSquare(row, col) {
+  function getSquare(
+    row,
+    col
+  ) {
     if (playerColor === 'b') {
-      return `${FILES[7 - col]}${row + 1}`
+      return `${
+        FILES[7 - col]
+      }${row + 1}`
     }
 
-    return `${FILES[col]}${8 - row}`
+    return `${
+      FILES[col]
+    }${8 - row}`
+  }
+
+  function getGameResult(
+    chessGame
+  ) {
+    if (
+      chessGame.isCheckmate()
+    ) {
+      /*
+       * chessGame.turn() is the
+       * checkmated player.
+       */
+      return {
+        finished: true,
+
+        winner:
+          chessGame.turn() === 'w'
+            ? 'black'
+            : 'white',
+
+        result:
+          'checkmate',
+      }
+    }
+
+    if (
+      chessGame.isStalemate()
+    ) {
+      return {
+        finished: true,
+        winner: 'draw',
+        result: 'stalemate',
+      }
+    }
+
+    if (
+      chessGame.isThreefoldRepetition()
+    ) {
+      return {
+        finished: true,
+        winner: 'draw',
+        result:
+          'threefold_repetition',
+      }
+    }
+
+    if (
+      chessGame.isInsufficientMaterial()
+    ) {
+      return {
+        finished: true,
+        winner: 'draw',
+        result:
+          'insufficient_material',
+      }
+    }
+
+    if (
+      chessGame.isDrawByFiftyMoves()
+    ) {
+      return {
+        finished: true,
+        winner: 'draw',
+        result:
+          'fifty_move_rule',
+      }
+    }
+
+    if (
+      chessGame.isDraw()
+    ) {
+      return {
+        finished: true,
+        winner: 'draw',
+        result: 'draw',
+      }
+    }
+
+    return {
+      finished: false,
+      winner: null,
+      result: null,
+    }
   }
 
   async function finishMove(
@@ -100,8 +204,14 @@ function ChessBoard({
       return
     }
 
+    if (
+      gameStatus !== 'playing'
+    ) {
+      return
+    }
+
     /*
-     * Spectators cannot make moves.
+     * Spectators cannot move.
      */
     if (
       playerColor !== 'w' &&
@@ -111,32 +221,45 @@ function ChessBoard({
     }
 
     /*
-     * The local board also prevents you from
-     * attempting to move when it isn't your turn.
-     *
-     * The database performs the authoritative
-     * ownership/turn check as well.
+     * Player cannot move during
+     * opponent's turn.
      */
-    if (game.turn() !== playerColor) {
+    if (
+      game.turn() !==
+      playerColor
+    ) {
       return
     }
 
-    const expectedFen = game.fen()
+    const expectedFen =
+      game.fen()
 
     try {
-      const newGame = new Chess(expectedFen)
+      const newGame =
+        new Chess(expectedFen)
 
-      const move = newGame.move({
-        from,
-        to,
-        ...(promotion
-          ? { promotion }
-          : {}),
-      })
+      const move =
+        newGame.move({
+          from,
+          to,
+
+          ...(promotion
+            ? { promotion }
+            : {}),
+        })
 
       if (!move) {
         return
       }
+
+      /*
+       * Determine whether this move
+       * ended the game.
+       */
+      const gameResult =
+        getGameResult(
+          newGame
+        )
 
       setSubmittingMove(true)
       setMoveError('')
@@ -144,18 +267,36 @@ function ChessBoard({
       const updatedGame =
         await submitMove({
           gameId,
+
           expectedFen,
-          newFen: newGame.fen(),
-          newPgn: newGame.pgn(),
-          newTurn: newGame.turn(),
+
+          newFen:
+            newGame.fen(),
+
+          newPgn:
+            newGame.pgn(),
+
+          newTurn:
+            newGame.turn(),
+
+          gameFinished:
+            gameResult.finished,
+
+          gameWinner:
+            gameResult.winner,
+
+          gameResult:
+            gameResult.result,
         })
 
       /*
-       * Only update the visible board after
-       * Supabase accepts the move.
+       * Only accept the position
+       * after Supabase accepted it.
        */
       setGame(
-        new Chess(updatedGame.fen)
+        new Chess(
+          updatedGame.fen
+        )
       )
 
       setLastMove({
@@ -167,11 +308,10 @@ function ChessBoard({
       setLegalSquares([])
       setPendingPromotion(null)
 
-      /*
-       * Update GamePage's database game object.
-       */
       if (onGameUpdate) {
-        onGameUpdate(updatedGame)
+        onGameUpdate(
+          updatedGame
+        )
       }
     } catch (error) {
       console.error(
@@ -185,11 +325,12 @@ function ChessBoard({
       )
 
       /*
-       * Restore the authoritative position
-       * supplied by GamePage.
+       * Restore database position.
        */
       try {
-        setGame(new Chess(fen))
+        setGame(
+          new Chess(fen)
+        )
       } catch {
         // Ignore invalid fallback FEN.
       }
@@ -202,7 +343,9 @@ function ChessBoard({
     }
   }
 
-  function choosePromotion(piece) {
+  function choosePromotion(
+    piece
+  ) {
     if (!pendingPromotion) {
       return
     }
@@ -214,8 +357,16 @@ function ChessBoard({
     )
   }
 
-  function selectSquare(square) {
+  function selectSquare(
+    square
+  ) {
     if (submittingMove) {
+      return
+    }
+
+    if (
+      gameStatus !== 'playing'
+    ) {
       return
     }
 
@@ -224,7 +375,7 @@ function ChessBoard({
     }
 
     /*
-     * Spectators cannot interact with the board.
+     * Spectator.
      */
     if (
       playerColor !== 'w' &&
@@ -234,109 +385,141 @@ function ChessBoard({
     }
 
     /*
-     * A player can only interact when it is
-     * their turn.
+     * Opponent's turn.
      */
-    if (game.turn() !== playerColor) {
+    if (
+      game.turn() !==
+      playerColor
+    ) {
       return
     }
 
-    const piece = game.get(square)
+    const piece =
+      game.get(square)
 
     /*
-     * Nothing selected yet.
+     * Select first piece.
      */
     if (!selectedSquare) {
       if (!piece) {
         return
       }
 
-      /*
-       * Only your own pieces can be selected.
-       */
-      if (piece.color !== playerColor) {
+      if (
+        piece.color !==
+        playerColor
+      ) {
         return
       }
 
-      const moves = game.moves({
-        square,
-        verbose: true,
-      })
+      const moves =
+        game.moves({
+          square,
+          verbose: true,
+        })
 
-      setSelectedSquare(square)
+      setSelectedSquare(
+        square
+      )
 
       setLegalSquares(
-        moves.map((move) => move.to)
+        moves.map(
+          (move) =>
+            move.to
+        )
       )
 
       return
     }
 
     /*
-     * Clicking the selected square again
-     * deselects it.
+     * Deselect.
      */
-    if (square === selectedSquare) {
+    if (
+      square ===
+      selectedSquare
+    ) {
       setSelectedSquare(null)
       setLegalSquares([])
       return
     }
 
     /*
-     * Switch selection to another one of
-     * your pieces.
+     * Select another friendly
+     * piece.
      */
     if (
       piece &&
-      piece.color === playerColor
+      piece.color ===
+        playerColor
     ) {
-      const moves = game.moves({
-        square,
-        verbose: true,
-      })
+      const moves =
+        game.moves({
+          square,
+          verbose: true,
+        })
 
-      setSelectedSquare(square)
+      setSelectedSquare(
+        square
+      )
 
       setLegalSquares(
-        moves.map((move) => move.to)
+        moves.map(
+          (move) =>
+            move.to
+        )
       )
 
       return
     }
 
     /*
-     * Don't attempt a move unless chess.js
-     * marked the destination as legal.
+     * Destination must be legal.
      */
-    if (!legalSquares.includes(square)) {
+    if (
+      !legalSquares.includes(
+        square
+      )
+    ) {
       setSelectedSquare(null)
       setLegalSquares([])
       return
     }
 
     const selectedPiece =
-      game.get(selectedSquare)
+      game.get(
+        selectedSquare
+      )
 
-    const targetRank = square[1]
+    const targetRank =
+      square[1]
 
     const isPromotion =
-      selectedPiece?.type === 'p' &&
+      selectedPiece?.type ===
+        'p' &&
       (
         (
-          selectedPiece.color === 'w' &&
+          selectedPiece.color ===
+            'w' &&
           targetRank === '8'
         ) ||
         (
-          selectedPiece.color === 'b' &&
+          selectedPiece.color ===
+            'b' &&
           targetRank === '1'
         )
       )
 
     if (isPromotion) {
       setPendingPromotion({
-        from: selectedSquare,
-        to: square,
-        color: selectedPiece.color,
+        from:
+          selectedSquare,
+
+        to:
+          square,
+
+        color:
+          selectedPiece.color,
       })
 
       return
@@ -348,35 +531,95 @@ function ChessBoard({
     )
   }
 
-  function getStatus() {
-    if (submittingMove) {
-      return 'Submitting move...'
+  function getFinishedStatus() {
+    if (
+      result === 'checkmate'
+    ) {
+      if (
+        winner === 'white'
+      ) {
+        return (
+          'Checkmate — White wins!'
+        )
+      }
+
+      if (
+        winner === 'black'
+      ) {
+        return (
+          'Checkmate — Black wins!'
+        )
+      }
     }
 
-    if (game.isCheckmate()) {
-      return game.turn() === 'w'
-        ? 'Checkmate — Black wins!'
-        : 'Checkmate — White wins!'
+    if (
+      result === 'stalemate'
+    ) {
+      return (
+        'Draw — Stalemate'
+      )
     }
 
-    if (game.isStalemate()) {
-      return 'Draw — Stalemate'
+    if (
+      result ===
+      'threefold_repetition'
+    ) {
+      return (
+        'Draw — Threefold repetition'
+      )
     }
 
-    if (game.isThreefoldRepetition()) {
-      return 'Draw — Threefold repetition'
+    if (
+      result ===
+      'insufficient_material'
+    ) {
+      return (
+        'Draw — Insufficient material'
+      )
     }
 
-    if (game.isInsufficientMaterial()) {
-      return 'Draw — Insufficient material'
+    if (
+      result ===
+      'fifty_move_rule'
+    ) {
+      return (
+        'Draw — Fifty-move rule'
+      )
     }
 
-    if (game.isDrawByFiftyMoves()) {
-      return 'Draw — Fifty-move rule'
-    }
-
-    if (game.isDraw()) {
+    if (
+      result === 'draw'
+    ) {
       return 'Draw'
+    }
+
+    if (
+      result === 'cancelled'
+    ) {
+      return 'Game cancelled'
+    }
+
+    return 'Game finished'
+  }
+
+  function getStatus() {
+    /*
+     * Database result wins over
+     * local board calculation.
+     */
+    if (
+      gameStatus ===
+      'finished'
+    ) {
+      return (
+        getFinishedStatus()
+      )
+    }
+
+    if (submittingMove) {
+      return (
+        'Submitting move...'
+      )
     }
 
     const player =
@@ -384,33 +627,59 @@ function ChessBoard({
         ? 'White'
         : 'Black'
 
-    if (game.inCheck()) {
-      return `${player} to move — CHECK!`
+    if (
+      game.inCheck()
+    ) {
+      if (
+        game.turn() ===
+        playerColor
+      ) {
+        return (
+          `${player} to move — CHECK! — Your turn`
+        )
+      }
+
+      return (
+        `${player} to move — CHECK!`
+      )
     }
 
     if (
       playerColor === 'w' ||
       playerColor === 'b'
     ) {
-      if (game.turn() === playerColor) {
-        return `${player} to move — Your turn`
+      if (
+        game.turn() ===
+        playerColor
+      ) {
+        return (
+          `${player} to move — Your turn`
+        )
       }
 
-      return `${player} to move — Opponent's turn`
+      return (
+        `${player} to move — Opponent's turn`
+      )
     }
 
-    return `${player} to move`
+    return (
+      `${player} to move`
+    )
   }
 
-  const board = game.board()
+  const board =
+    game.board()
 
   const displayBoard =
     playerColor === 'b'
       ? board
           .slice()
           .reverse()
-          .map((row) =>
-            row.slice().reverse()
+          .map(
+            (row) =>
+              row
+                .slice()
+                .reverse()
           )
       : board
 
@@ -430,54 +699,82 @@ function ChessBoard({
 
               <button
                 onClick={() =>
-                  choosePromotion('q')
+                  choosePromotion(
+                    'q'
+                  )
                 }
-                disabled={submittingMove}
+                disabled={
+                  submittingMove
+                }
               >
-                {pendingPromotion.color === 'w'
+                {pendingPromotion.color ===
+                'w'
                   ? '♕'
                   : '♛'}
 
-                <span>Queen</span>
+                <span>
+                  Queen
+                </span>
               </button>
 
               <button
                 onClick={() =>
-                  choosePromotion('r')
+                  choosePromotion(
+                    'r'
+                  )
                 }
-                disabled={submittingMove}
+                disabled={
+                  submittingMove
+                }
               >
-                {pendingPromotion.color === 'w'
+                {pendingPromotion.color ===
+                'w'
                   ? '♖'
                   : '♜'}
 
-                <span>Rook</span>
+                <span>
+                  Rook
+                </span>
               </button>
 
               <button
                 onClick={() =>
-                  choosePromotion('b')
+                  choosePromotion(
+                    'b'
+                  )
                 }
-                disabled={submittingMove}
+                disabled={
+                  submittingMove
+                }
               >
-                {pendingPromotion.color === 'w'
+                {pendingPromotion.color ===
+                'w'
                   ? '♗'
                   : '♝'}
 
-                <span>Bishop</span>
+                <span>
+                  Bishop
+                </span>
               </button>
 
               <button
                 onClick={() =>
-                  choosePromotion('n')
+                  choosePromotion(
+                    'n'
+                  )
                 }
-                disabled={submittingMove}
+                disabled={
+                  submittingMove
+                }
               >
-                {pendingPromotion.color === 'w'
+                {pendingPromotion.color ===
+                'w'
                   ? '♘'
                   : '♞'}
 
-                <span>Knight</span>
+                <span>
+                  Knight
+                </span>
               </button>
 
             </div>
@@ -500,10 +797,15 @@ function ChessBoard({
       <div className="chess-board">
 
         {displayBoard.map(
-          (row, rowIndex) =>
+          (
+            row,
+            rowIndex
+          ) =>
             row.map(
-              (piece, colIndex) => {
-
+              (
+                piece,
+                colIndex
+              ) => {
                 const square =
                   getSquare(
                     rowIndex,
@@ -514,10 +816,13 @@ function ChessBoard({
                   (
                     rowIndex +
                     colIndex
-                  ) % 2 === 0
+                  ) %
+                    2 ===
+                  0
 
                 const isSelected =
-                  selectedSquare === square
+                  selectedSquare ===
+                  square
 
                 const isLegal =
                   legalSquares.includes(
@@ -542,7 +847,9 @@ function ChessBoard({
 
                 return (
                   <button
-                    key={square}
+                    key={
+                      square
+                    }
                     className={[
                       'chess-square',
 
@@ -561,14 +868,20 @@ function ChessBoard({
                       isLastMove
                         ? 'last-move'
                         : '',
-                    ].join(' ')}
+                    ].join(
+                      ' '
+                    )}
                     onClick={() =>
-                      selectSquare(square)
+                      selectSquare(
+                        square
+                      )
                     }
                     disabled={
                       submittingMove
                     }
-                    aria-label={square}
+                    aria-label={
+                      square
+                    }
                   >
 
                     {pieceSymbol && (
@@ -582,7 +895,9 @@ function ChessBoard({
                           }`
                         }
                       >
-                        {pieceSymbol}
+                        {
+                          pieceSymbol
+                        }
                       </span>
                     )}
 
@@ -600,25 +915,29 @@ function ChessBoard({
                         />
                       )}
 
-                    {colIndex === 0 && (
+                    {colIndex ===
+                      0 && (
                       <span className="rank-label">
                         {
                           playerColor ===
                           'b'
-                            ? rowIndex + 1
-                            : 8 - rowIndex
+                            ? rowIndex +
+                              1
+                            : 8 -
+                              rowIndex
                         }
                       </span>
                     )}
 
-                    {rowIndex === 7 && (
+                    {rowIndex ===
+                      7 && (
                       <span className="file-label">
                         {
                           playerColor ===
                           'b'
                             ? FILES[
                                 7 -
-                                colIndex
+                                  colIndex
                               ]
                             : FILES[
                                 colIndex

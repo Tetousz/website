@@ -8,6 +8,7 @@ import './ChessApp.css'
 import {
   getGame,
   cancelGame,
+  resignGame,
 } from './lib/games'
 
 import {
@@ -41,19 +42,21 @@ function ChessApp() {
     initializeChess()
   }, [])
 
-  const path = window.location.pathname
+  const path =
+    window.location.pathname
 
-  const gameMatch = path.match(
-    /^\/chess\/id\/(\d{4})\/?$/
-  )
+  const gameMatch =
+    path.match(
+      /^\/chess\/id\/(\d{4})\/?$/
+    )
 
-  const gameCode = gameMatch
-    ? gameMatch[1]
-    : null
+  const gameCode =
+    gameMatch
+      ? gameMatch[1]
+      : null
 
   return (
     <div className="chess-app">
-
       <header className="chess-header">
 
         <a
@@ -79,44 +82,58 @@ function ChessApp() {
           </a>
 
         </div>
-
       </header>
 
       <main className="chess-main">
 
         {gameCode ? (
           <GamePage
-            gameCode={gameCode}
+            gameCode={
+              gameCode
+            }
           />
         ) : (
           <Lobby />
         )}
 
       </main>
-
     </div>
   )
 }
 
-function GamePage({ gameCode }) {
-  const [game, setGame] =
-    useState(null)
+function GamePage({
+  gameCode,
+}) {
+  const [
+    game,
+    setGame,
+  ] = useState(null)
 
-  const [currentUser, setCurrentUser] =
-    useState(null)
+  const [
+    currentUser,
+    setCurrentUser,
+  ] = useState(null)
 
-  const [loading, setLoading] =
-    useState(true)
+  const [
+    loading,
+    setLoading,
+  ] = useState(true)
 
-  const [error, setError] =
-    useState('')
+  const [
+    error,
+    setError,
+  ] = useState('')
 
-  const [cancelling, setCancelling] =
-    useState(false)
+  const [
+    cancelling,
+    setCancelling,
+  ] = useState(false)
 
-  /*
-   * Initial room load.
-   */
+  const [
+    resigning,
+    setResigning,
+  ] = useState(false)
+
   useEffect(() => {
     async function loadGame() {
       try {
@@ -126,20 +143,25 @@ function GamePage({ gameCode }) {
         const user =
           await ensureAnonymousUser()
 
-        setCurrentUser(user)
+        setCurrentUser(
+          user
+        )
 
         const gameData =
-          await getGame(gameCode)
+          await getGame(
+            gameCode
+          )
 
         if (!gameData) {
           setError(
             'Game not found.'
           )
-
           return
         }
 
-        setGame(gameData)
+        setGame(
+          gameData
+        )
       } catch (error) {
         console.error(
           'Failed to load game:',
@@ -157,14 +179,6 @@ function GamePage({ gameCode }) {
     loadGame()
   }, [gameCode])
 
-  /*
-   * Realtime subscription.
-   *
-   * Whenever Supabase reports that this
-   * particular game row changed, replace
-   * our local game object with the newest
-   * database row.
-   */
   useEffect(() => {
     const channel =
       supabase
@@ -174,10 +188,17 @@ function GamePage({ gameCode }) {
         .on(
           'postgres_changes',
           {
-            event: 'UPDATE',
-            schema: 'public',
-            table: 'games',
-            filter: `id=eq.${gameCode}`,
+            event:
+              'UPDATE',
+
+            schema:
+              'public',
+
+            table:
+              'games',
+
+            filter:
+              `id=eq.${gameCode}`,
           },
           (payload) => {
             console.log(
@@ -185,15 +206,19 @@ function GamePage({ gameCode }) {
               payload.new
             )
 
-            setGame(payload.new)
+            setGame(
+              payload.new
+            )
           }
         )
-        .subscribe((status) => {
-          console.log(
-            'Realtime status:',
-            status
-          )
-        })
+        .subscribe(
+          (status) => {
+            console.log(
+              'Realtime status:',
+              status
+            )
+          }
+        )
 
     return () => {
       supabase.removeChannel(
@@ -202,9 +227,13 @@ function GamePage({ gameCode }) {
     }
   }, [gameCode])
 
-  let playerColor = null
+  let playerColor =
+    null
 
-  if (currentUser && game) {
+  if (
+    currentUser &&
+    game
+  ) {
     if (
       game.white_id ===
       currentUser.id
@@ -223,13 +252,16 @@ function GamePage({ gameCode }) {
     playerColor === 'b'
 
   const isWaiting =
-    game?.status === 'waiting'
+    game?.status ===
+    'waiting'
 
   const isPlaying =
-    game?.status === 'playing'
+    game?.status ===
+    'playing'
 
   const isFinished =
-    game?.status === 'finished'
+    game?.status ===
+    'finished'
 
   async function handleCancelGame() {
     if (
@@ -249,10 +281,14 @@ function GamePage({ gameCode }) {
       return
     }
 
-    setCancelling(true)
+    setCancelling(
+      true
+    )
 
     try {
-      await cancelGame(game.id)
+      await cancelGame(
+        game.id
+      )
 
       window.location.href =
         '/chess'
@@ -266,8 +302,194 @@ function GamePage({ gameCode }) {
         'Could not cancel the game.'
       )
 
-      setCancelling(false)
+      setCancelling(
+        false
+      )
     }
+  }
+
+  async function handleResignGame() {
+    if (
+      !game ||
+      !isPlayer ||
+      !isPlaying ||
+      resigning
+    ) {
+      return
+    }
+
+    const confirmed =
+      window.confirm(
+        'Are you sure you want to resign? Your opponent will win the game.'
+      )
+
+    if (!confirmed) {
+      return
+    }
+
+    setResigning(
+      true
+    )
+
+    try {
+      const updatedGame =
+        await resignGame(
+          game.id
+        )
+
+      setGame(
+        updatedGame
+      )
+    } catch (error) {
+      console.error(
+        'Failed to resign game:',
+        error
+      )
+
+      window.alert(
+        'Could not resign the game.'
+      )
+    } finally {
+      setResigning(
+        false
+      )
+    }
+  }
+
+  function getResultText() {
+    if (
+      !game ||
+      !isFinished
+    ) {
+      return null
+    }
+
+    if (
+      game.result ===
+      'checkmate'
+    ) {
+      if (
+        game.winner ===
+        'white'
+      ) {
+        return (
+          'White wins by checkmate.'
+        )
+      }
+
+      if (
+        game.winner ===
+        'black'
+      ) {
+        return (
+          'Black wins by checkmate.'
+        )
+      }
+    }
+
+    if (
+      game.result ===
+      'resignation'
+    ) {
+      if (
+        game.winner ===
+        'white'
+      ) {
+        return (
+          'White wins by resignation.'
+        )
+      }
+
+      if (
+        game.winner ===
+        'black'
+      ) {
+        return (
+          'Black wins by resignation.'
+        )
+      }
+    }
+
+    if (
+      game.result ===
+      'stalemate'
+    ) {
+      return (
+        'Draw by stalemate.'
+      )
+    }
+
+    if (
+      game.result ===
+      'threefold_repetition'
+    ) {
+      return (
+        'Draw by threefold repetition.'
+      )
+    }
+
+    if (
+      game.result ===
+      'insufficient_material'
+    ) {
+      return (
+        'Draw by insufficient material.'
+      )
+    }
+
+    if (
+      game.result ===
+      'fifty_move_rule'
+    ) {
+      return (
+        'Draw by fifty-move rule.'
+      )
+    }
+
+    if (
+      game.result ===
+      'draw'
+    ) {
+      return 'Draw.'
+    }
+
+    if (
+      game.result ===
+      'cancelled'
+    ) {
+      return (
+        'Game cancelled.'
+      )
+    }
+
+    if (
+      game.winner ===
+      'white'
+    ) {
+      return (
+        'White wins.'
+      )
+    }
+
+    if (
+      game.winner ===
+      'black'
+    ) {
+      return (
+        'Black wins.'
+      )
+    }
+
+    if (
+      game.winner ===
+      'draw'
+    ) {
+      return 'Draw.'
+    }
+
+    return (
+      'Game finished.'
+    )
   }
 
   if (loading) {
@@ -275,7 +497,8 @@ function GamePage({ gameCode }) {
       <div className="game-page">
 
         <div className="game-warning">
-          Loading game #{gameCode}...
+          Loading game #
+          {gameCode}...
         </div>
 
       </div>
@@ -345,7 +568,6 @@ function GamePage({ gameCode }) {
           <strong>
             White:
           </strong>{' '}
-
           {game.white_name ||
             'Waiting...'}
         </div>
@@ -354,7 +576,6 @@ function GamePage({ gameCode }) {
           <strong>
             Black:
           </strong>{' '}
-
           {game.black_name ||
             'Waiting...'}
         </div>
@@ -363,7 +584,6 @@ function GamePage({ gameCode }) {
           <strong>
             Status:
           </strong>{' '}
-
           {game.status}
         </div>
 
@@ -371,7 +591,6 @@ function GamePage({ gameCode }) {
           <strong>
             You:
           </strong>{' '}
-
           {playerColor === 'w'
             ? 'White'
             : playerColor === 'b'
@@ -411,7 +630,10 @@ function GamePage({ gameCode }) {
 
         {isFinished && (
           <div>
-            Game finished.
+            <strong>
+              Result:
+            </strong>{' '}
+            {getResultText()}
           </div>
         )}
 
@@ -425,7 +647,9 @@ function GamePage({ gameCode }) {
             onClick={
               handleCancelGame
             }
-            disabled={cancelling}
+            disabled={
+              cancelling
+            }
           >
             {cancelling
               ? 'Cancelling...'
@@ -433,11 +657,52 @@ function GamePage({ gameCode }) {
           </button>
         )}
 
+      {isPlaying &&
+        isPlayer && (
+          <button
+            type="button"
+            className="restart-button"
+            onClick={
+              handleResignGame
+            }
+            disabled={
+              resigning
+            }
+          >
+            {resigning
+              ? 'Resigning...'
+              : 'Resign'}
+          </button>
+        )}
+
       <ChessBoard
-        gameId={game.id}
-        playerColor={playerColor}
-        fen={game.fen}
-        onGameUpdate={setGame}
+        gameId={
+          game.id
+        }
+
+        playerColor={
+          playerColor
+        }
+
+        fen={
+          game.fen
+        }
+
+        gameStatus={
+          game.status
+        }
+
+        winner={
+          game.winner
+        }
+
+        result={
+          game.result
+        }
+
+        onGameUpdate={
+          setGame
+        }
       />
 
     </div>
