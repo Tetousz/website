@@ -81,6 +81,34 @@ export async function joinGame(
 }
 
 
+export async function submitMove({
+  gameId,
+  expectedFen,
+  newFen,
+  newPgn,
+  newTurn,
+}) {
+  const {
+    data,
+    error,
+  } = await supabase.rpc(
+    'submit_chess_move',
+    {
+      target_game_id: gameId,
+      expected_fen: expectedFen,
+      new_fen: newFen,
+      new_pgn: newPgn,
+      new_turn: newTurn,
+    }
+  )
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
 export async function cancelGame(gameId) {
   const {
     data,

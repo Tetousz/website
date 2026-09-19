@@ -1,13 +1,29 @@
-import { useEffect, useState } from 'react'
+import {
+  useEffect,
+  useState,
+} from 'react'
+
 import './ChessApp.css'
+
 import {
   getGame,
   cancelGame,
 } from './lib/games'
+
+import {
+  supabase,
+} from './lib/supabase'
+
 import ChessBoard from './components/ChessBoard'
 import Lobby from './components/Lobby'
-import { getUsername } from './lib/identity'
-import { ensureAnonymousUser } from './lib/auth'
+
+import {
+  getUsername,
+} from './lib/identity'
+
+import {
+  ensureAnonymousUser,
+} from './lib/auth'
 
 function ChessApp() {
   useEffect(() => {
@@ -69,7 +85,9 @@ function ChessApp() {
       <main className="chess-main">
 
         {gameCode ? (
-          <GamePage gameCode={gameCode} />
+          <GamePage
+            gameCode={gameCode}
+          />
         ) : (
           <Lobby />
         )}
@@ -81,10 +99,8 @@ function ChessApp() {
 }
 
 function GamePage({ gameCode }) {
-
-  const [cancelling, setCancelling] =
-    useState(false)
-  const [game, setGame] = useState(null)
+  const [game, setGame] =
+    useState(null)
 
   const [currentUser, setCurrentUser] =
     useState(null)
@@ -95,6 +111,12 @@ function GamePage({ gameCode }) {
   const [error, setError] =
     useState('')
 
+  const [cancelling, setCancelling] =
+    useState(false)
+
+  /*
+   * Initial room load.
+   */
   useEffect(() => {
     async function loadGame() {
       try {
@@ -110,7 +132,10 @@ function GamePage({ gameCode }) {
           await getGame(gameCode)
 
         if (!gameData) {
-          setError('Game not found.')
+          setError(
+            'Game not found.'
+          )
+
           return
         }
 
@@ -132,20 +157,70 @@ function GamePage({ gameCode }) {
     loadGame()
   }, [gameCode])
 
+  /*
+   * Realtime subscription.
+   *
+   * Whenever Supabase reports that this
+   * particular game row changed, replace
+   * our local game object with the newest
+   * database row.
+   */
+  useEffect(() => {
+    const channel =
+      supabase
+        .channel(
+          `chess-game-${gameCode}`
+        )
+        .on(
+          'postgres_changes',
+          {
+            event: 'UPDATE',
+            schema: 'public',
+            table: 'games',
+            filter: `id=eq.${gameCode}`,
+          },
+          (payload) => {
+            console.log(
+              'Realtime game update:',
+              payload.new
+            )
+
+            setGame(payload.new)
+          }
+        )
+        .subscribe((status) => {
+          console.log(
+            'Realtime status:',
+            status
+          )
+        })
+
+    return () => {
+      supabase.removeChannel(
+        channel
+      )
+    }
+  }, [gameCode])
+
   let playerColor = null
 
   if (currentUser && game) {
-    if (game.white_id === currentUser.id) {
+    if (
+      game.white_id ===
+      currentUser.id
+    ) {
       playerColor = 'w'
     } else if (
-      game.black_id === currentUser.id
+      game.black_id ===
+      currentUser.id
     ) {
       playerColor = 'b'
     }
   }
+
   const isPlayer =
-  playerColor === 'w' ||
-  playerColor === 'b'
+    playerColor === 'w' ||
+    playerColor === 'b'
 
   const isWaiting =
     game?.status === 'waiting'
@@ -156,46 +231,53 @@ function GamePage({ gameCode }) {
   const isFinished =
     game?.status === 'finished'
 
+  async function handleCancelGame() {
+    if (
+      !game ||
+      !isPlayer ||
+      !isWaiting
+    ) {
+      return
+    }
 
-async function handleCancelGame() {
-  if (!game || !isPlayer || !isWaiting) {
-    return
+    const confirmed =
+      window.confirm(
+        'Cancel this game?'
+      )
+
+    if (!confirmed) {
+      return
+    }
+
+    setCancelling(true)
+
+    try {
+      await cancelGame(game.id)
+
+      window.location.href =
+        '/chess'
+    } catch (error) {
+      console.error(
+        'Failed to cancel game:',
+        error
+      )
+
+      window.alert(
+        'Could not cancel the game.'
+      )
+
+      setCancelling(false)
+    }
   }
-
-  const confirmed = window.confirm(
-    'Cancel this game?'
-  )
-
-  if (!confirmed) {
-    return
-  }
-
-  setCancelling(true)
-
-  try {
-    await cancelGame(game.id)
-
-    window.location.href = '/chess'
-  } catch (error) {
-    console.error(
-      'Failed to cancel game:',
-      error
-    )
-
-    window.alert(
-      'Could not cancel the game.'
-    )
-
-    setCancelling(false)
-  }
-}
 
   if (loading) {
     return (
       <div className="game-page">
+
         <div className="game-warning">
           Loading game #{gameCode}...
         </div>
+
       </div>
     )
   }
@@ -205,12 +287,15 @@ async function handleCancelGame() {
       <div className="game-page">
 
         <div className="game-page-top">
+
           <div>
             <span className="game-code-label">
               GAME
             </span>
 
-            <h1>#{gameCode}</h1>
+            <h1>
+              #{gameCode}
+            </h1>
           </div>
 
           <a
@@ -219,6 +304,7 @@ async function handleCancelGame() {
           >
             ← Lobby
           </a>
+
         </div>
 
         <div className="game-warning">
@@ -233,12 +319,15 @@ async function handleCancelGame() {
     <div className="game-page">
 
       <div className="game-page-top">
+
         <div>
           <span className="game-code-label">
             GAME
           </span>
 
-          <h1>#{game.id}</h1>
+          <h1>
+            #{game.id}
+          </h1>
         </div>
 
         <a
@@ -247,85 +336,112 @@ async function handleCancelGame() {
         >
           ← Lobby
         </a>
+
       </div>
 
       <div className="game-room-info">
 
-  <div>
-    <strong>White:</strong>{' '}
-    {game.white_name || 'Waiting...'}
-  </div>
+        <div>
+          <strong>
+            White:
+          </strong>{' '}
 
-  <div>
-    <strong>Black:</strong>{' '}
-    {game.black_name || 'Waiting...'}
-  </div>
+          {game.white_name ||
+            'Waiting...'}
+        </div>
 
-  <div>
-    <strong>Status:</strong>{' '}
-    {game.status}
-  </div>
+        <div>
+          <strong>
+            Black:
+          </strong>{' '}
 
-  <div>
-    <strong>You:</strong>{' '}
-    {playerColor === 'w'
-      ? 'White'
-      : playerColor === 'b'
-        ? 'Black'
-        : 'Spectator'}
-  </div>
+          {game.black_name ||
+            'Waiting...'}
+        </div>
 
-  {isWaiting && isPlayer && (
-    <div>
-      Waiting for another player to join...
-    </div>
-  )}
+        <div>
+          <strong>
+            Status:
+          </strong>{' '}
 
-  {isWaiting && !isPlayer && (
-    <div>
-      This game is waiting for an opponent.
-    </div>
-  )}
+          {game.status}
+        </div>
 
-  {isPlaying && isPlayer && (
-    <div>
-      Game in progress.
-    </div>
-  )}
+        <div>
+          <strong>
+            You:
+          </strong>{' '}
 
-  {isPlaying && !isPlayer && (
-    <div>
-      Spectating game.
-    </div>
-  )}
+          {playerColor === 'w'
+            ? 'White'
+            : playerColor === 'b'
+              ? 'Black'
+              : 'Spectator'}
+        </div>
 
-  {isFinished && (
-    <div>
-      Game finished.
-    </div>
-  )}
+        {isWaiting &&
+          isPlayer && (
+            <div>
+              Waiting for another
+              player to join...
+            </div>
+          )}
 
-</div>
-  {isWaiting && isPlayer && (
-    <button
-      type="button"
-      className="restart-button"
-      onClick={handleCancelGame}
-      disabled={cancelling}
-    >
-      {cancelling
-        ? 'Cancelling...'
-        : 'Cancel Game'}
-    </button>
-  )}
+        {isWaiting &&
+          !isPlayer && (
+            <div>
+              This game is waiting
+              for an opponent.
+            </div>
+          )}
+
+        {isPlaying &&
+          isPlayer && (
+            <div>
+              Game in progress.
+            </div>
+          )}
+
+        {isPlaying &&
+          !isPlayer && (
+            <div>
+              Spectating game.
+            </div>
+          )}
+
+        {isFinished && (
+          <div>
+            Game finished.
+          </div>
+        )}
+
+      </div>
+
+      {isWaiting &&
+        isPlayer && (
+          <button
+            type="button"
+            className="restart-button"
+            onClick={
+              handleCancelGame
+            }
+            disabled={cancelling}
+          >
+            {cancelling
+              ? 'Cancelling...'
+              : 'Cancel Game'}
+          </button>
+        )}
 
       <ChessBoard
+        gameId={game.id}
         playerColor={playerColor}
+        fen={game.fen}
+        onGameUpdate={setGame}
       />
 
     </div>
   )
 }
-
 
 export default ChessApp
