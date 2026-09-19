@@ -1155,7 +1155,6 @@
 /* ========================================
    SMALL MOBILE
    ======================================== */
-
 @media (max-width: 430px) {
   .chess-logo {
     font-size: 17px;
@@ -1189,194 +1188,367 @@
     grid-template-columns:
       repeat(2, 1fr);
   }
+}
 
 
-
-
-  /* ========================================
+/* ========================================
    FINISHED GAMES
    ======================================== */
 
-  .finished-games-section {
-    margin-top: 42px;
-  }
+.finished-games-section {
+  margin-top: 42px;
+}
 
-  .finished-game-card {
-    opacity: 0.78;
-  }
+.finished-game-card {
+  opacity: 0.78;
+}
 
-  .finished-game-card:hover {
-    opacity: 1;
-  }
+.finished-game-card:hover {
+  opacity: 1;
+}
 
+.finished-result {
+  max-width: 190px;
+
+  color: #888888;
+
+  font-size: 11px;
+  font-weight: 600;
+
+  text-align: right;
+
+  line-height: 1.35;
+}
+
+@media (max-width: 700px) {
   .finished-result {
-    max-width: 190px;
+    max-width: none;
 
-    color: #888888;
-
-    font-size: 11px;
-    font-weight: 600;
-
-    text-align: right;
-
-    line-height: 1.35;
+    text-align: left;
   }
+}
 
-  @media (max-width: 700px) {
-    .finished-result {
-      max-width: none;
-      text-align: left;
-    }
+
+/* ========================================
+   BOARD + MOVE HISTORY
+   ======================================== */
+
+.game-play-area {
+  width: 100%;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(0, 680px)
+    260px;
+
+  align-items: start;
+
+  justify-content: center;
+
+  gap: 24px;
+
+  margin-top: 20px;
+}
+
+
+/*
+ * Allow the game page to actually
+ * contain both the 680px board and
+ * the 260px history panel.
+ */
+.game-page {
+  max-width: 1050px;
+}
+
+
+/*
+ * ChessBoard is the left column.
+ */
+.game-play-area .game-container {
+  width: 100%;
+
+  min-width: 0;
+
+  margin: 0;
+}
+
+
+/*
+ * The board should fill its grid
+ * column instead of using 78vw.
+ */
+.game-play-area .chess-board {
+  width: 100%;
+
+  max-width: 680px;
+}
+
+
+/*
+ * Keep the game status aligned
+ * with the board.
+ */
+.game-play-area .game-status {
+  width: 100%;
+
+  max-width: 680px;
+
+  box-sizing: border-box;
+
+  text-align: center;
+}
+
+
+/* ========================================
+   MOVE HISTORY PANEL
+   ======================================== */
+
+.move-history {
+  width: 260px;
+
+  height: 680px;
+
+  min-width: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  box-sizing: border-box;
+
+  overflow: hidden;
+
+  border: 1px solid #2a2a2a;
+
+  border-radius: 10px;
+
+  background: #111111;
+}
+
+
+.move-history-header {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 16px;
+
+  flex-shrink: 0;
+
+  padding: 16px 18px;
+
+  border-bottom: 1px solid #242424;
+}
+
+
+.move-history-header h2 {
+  margin: 2px 0 0;
+
+  color: #f2f2f2;
+
+  font-size: 17px;
+
+  font-weight: 650;
+}
+
+
+.move-history-label {
+  color: #666666;
+
+  font-size: 9px;
+
+  font-weight: 700;
+
+  letter-spacing: 0.14em;
+}
+
+
+.move-count {
+  color: #777777;
+
+  font-size: 11px;
+
+  white-space: nowrap;
+}
+
+
+/* ========================================
+   MOVE LIST
+   ======================================== */
+
+.move-history-list {
+  flex: 1;
+
+  min-height: 0;
+
+  overflow-y: auto;
+
+  padding: 8px;
+}
+
+
+.move-history-empty {
+  padding: 24px 10px;
+
+  color: #666666;
+
+  font-size: 12px;
+
+  text-align: center;
+}
+
+
+.move-history-row {
+  display: grid;
+
+  grid-template-columns:
+    34px
+    minmax(0, 1fr)
+    minmax(0, 1fr);
+
+  align-items: center;
+
+  min-height: 34px;
+
+  border-radius: 6px;
+
+  color: #bdbdbd;
+
+  font-size: 13px;
+}
+
+
+.move-history-row.latest {
+  background: #191919;
+}
+
+
+.move-number {
+  color: #5f5f5f;
+
+  font-size: 11px;
+
+  text-align: center;
+}
+
+
+.move-san {
+  padding: 7px 8px;
+
+  overflow: hidden;
+
+  color: #d5d5d5;
+
+  font-family:
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+}
+
+
+.move-history-row.latest .move-san {
+  color: #ffffff;
+}
+
+
+/* ========================================
+   MOVE HISTORY SCROLLBAR
+   ======================================== */
+
+.move-history-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+
+.move-history-list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+
+.move-history-list::-webkit-scrollbar-thumb {
+  background: #333333;
+
+  border-radius: 999px;
+}
+
+
+/* ========================================
+   BOARD + HISTORY RESPONSIVE
+   ======================================== */
+
+/*
+ * The desktop layout requires about:
+ *
+ * 680px board
+ *  24px gap
+ * 260px history
+ * ----------------
+ * 964px total
+ *
+ * Once the viewport becomes too
+ * narrow, shrink the board while
+ * keeping the history on the right.
+ */
+@media (max-width: 1100px) {
+  .game-page {
+    max-width: 900px;
   }
-
-
-
-
-    /* =========================
-    Move history
-    ========================= */
 
   .game-play-area {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 24px;
-    width: 100%;
-    margin-top: 20px;
-  }
-
-  .game-play-area .game-container {
-    margin-top: 0;
+    grid-template-columns:
+      minmax(0, 1fr)
+      230px;
   }
 
   .move-history {
-    width: 260px;
-    max-height: 520px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    width: 230px;
 
-    border: 1px solid #2a2a2a;
-    border-radius: 10px;
+    height: auto;
 
-    background: #111111;
+    min-height: 400px;
+
+    align-self: stretch;
+  }
+}
+
+
+/*
+ * On actual mobile-sized screens,
+ * move history goes underneath.
+ */
+@media (max-width: 700px) {
+  .game-page {
+    max-width: 600px;
   }
 
-  .move-history-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 16px;
+  .game-play-area {
+    grid-template-columns:
+      minmax(0, 1fr);
 
-    padding: 16px 18px;
-
-    border-bottom: 1px solid #242424;
+    gap: 18px;
   }
 
-  .move-history-header h2 {
-    margin: 2px 0 0;
+  .game-play-area .chess-board {
+    width: 100%;
 
-    color: #f2f2f2;
-    font-size: 17px;
-    font-weight: 650;
+    max-width: 600px;
   }
 
-  .move-history-label {
-    color: #666666;
-    font-size: 9px;
-    font-weight: 700;
-    letter-spacing: 0.14em;
-  }
+  .move-history {
+    width: 100%;
 
-  .move-count {
-    color: #777777;
-    font-size: 11px;
-    white-space: nowrap;
-  }
+    height: 280px;
 
-  .move-history-list {
-    flex: 1;
-    min-height: 120px;
-    overflow-y: auto;
-
-    padding: 8px;
-  }
-
-  .move-history-empty {
-    padding: 24px 10px;
-
-    color: #666666;
-    font-size: 12px;
-    text-align: center;
-  }
-
-  .move-history-row {
-    display: grid;
-    grid-template-columns: 34px 1fr 1fr;
-    align-items: center;
-
-    min-height: 34px;
-
-    border-radius: 6px;
-
-    color: #bdbdbd;
-    font-size: 13px;
-  }
-
-  .move-history-row.latest {
-    background: #191919;
-  }
-
-  .move-number {
-    color: #5f5f5f;
-    font-size: 11px;
-    text-align: center;
-  }
-
-  .move-san {
-    padding: 7px 8px;
-
-    font-family:
-      ui-monospace,
-      SFMono-Regular,
-      Menlo,
-      Monaco,
-      Consolas,
-      monospace;
-
-    color: #d5d5d5;
-  }
-
-  .move-history-row.latest .move-san {
-    color: #ffffff;
-  }
-
-  .move-history-list::-webkit-scrollbar {
-    width: 6px;
-  }
-
-  .move-history-list::-webkit-scrollbar-track {
-    background: transparent;
-  }
-
-  .move-history-list::-webkit-scrollbar-thumb {
-    background: #333333;
-    border-radius: 999px;
-  }
-
-  @media (max-width: 850px) {
-    .game-play-area {
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .move-history {
-      width: min(
-        100%,
-        520px
-      );
-
-      max-height: 300px;
-    }
+    min-height: 280px;
   }
 }
