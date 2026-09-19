@@ -1,51 +1,688 @@
+/* ========================================
+   BASE
+   ======================================== */
+
 .chess-app {
   min-height: 100vh;
   background: #111111;
   color: #eeeeee;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
     sans-serif;
 }
 
+.chess-main {
+  min-height: calc(100vh - 65px);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+
+/* ========================================
+   HEADER
+   ======================================== */
+
 .chess-header {
   height: 64px;
-
   display: flex;
   align-items: center;
-
+  justify-content: space-between;
   padding: 0 28px;
-
   border-bottom: 1px solid #292929;
-
   background: #151515;
 }
 
 .chess-logo {
   color: #ffffff;
   text-decoration: none;
-
   font-size: 20px;
   font-weight: 700;
 }
 
-.chess-title {
-  margin-left: 12px;
-  padding-left: 12px;
-
-  border-left: 1px solid #444;
-
-  color: #999;
+.chess-header-right {
+  display: flex;
+  align-items: center;
+  gap: 18px;
 }
 
-.chess-main {
-  min-height: calc(100vh - 65px);
+.header-username {
+  color: #888888;
+  font-size: 13px;
+}
 
+.portfolio-link {
+  color: #bbbbbb;
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.15s ease;
+}
+
+.portfolio-link:hover {
+  color: #ffffff;
+}
+
+
+/* ========================================
+   LOBBY
+   ======================================== */
+
+.lobby {
+  width: 100%;
+  max-width: 900px;
+  margin: 40px auto;
+}
+
+.lobby-hero {
+  text-align: center;
+  margin-bottom: 35px;
+}
+
+.lobby-piece {
+  font-size: 60px;
+  line-height: 1;
+  margin-bottom: 8px;
+}
+
+.lobby-hero h1 {
+  margin: 0;
+  font-size: 38px;
+  letter-spacing: -1px;
+}
+
+.lobby-hero p {
+  margin: 10px 0 0;
+  color: #888888;
+  line-height: 1.5;
+}
+
+
+/* ========================================
+   CREATE / JOIN CARD
+   ======================================== */
+
+.lobby-card {
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 28px;
+  box-sizing: border-box;
+
+  background: #181818;
+  border: 1px solid #303030;
+  border-radius: 10px;
+
+  box-shadow:
+    0 15px 40px rgba(0, 0, 0, 0.3);
+}
+
+
+/* ========================================
+   USERNAME
+   ======================================== */
+
+.username-field {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.username-field label,
+.join-section label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #aaaaaa;
+}
+
+.username-field input,
+.game-code-input {
+  width: 100%;
+  box-sizing: border-box;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+
+  background: #101010;
+  color: #eeeeee;
+
+  padding: 12px 14px;
+
+  outline: none;
+  font-size: 15px;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.username-field input:focus,
+.game-code-input:focus {
+  border-color: #777777;
+  background: #131313;
+}
+
+
+/* ========================================
+   ERRORS
+   ======================================== */
+
+.input-error {
+  margin: 7px 0 0;
+  color: #e87979;
+  font-size: 12px;
+}
+
+
+/* ========================================
+   CREATE BUTTON
+   ======================================== */
+
+.create-game-button {
+  width: 100%;
+
+  margin-top: 20px;
+  padding: 13px;
+
+  border: 0;
+  border-radius: 6px;
+
+  background: #eeeeee;
+  color: #111111;
+
+  font-size: 14px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.15s ease;
+}
+
+.create-game-button:hover:not(:disabled) {
+  background: #ffffff;
+  transform: translateY(-1px);
+}
+
+.create-game-button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+
+/* ========================================
+   DIVIDER
+   ======================================== */
+
+.lobby-divider {
+  display: flex;
   align-items: center;
 
-  padding: 30px;
-  box-sizing: border-box;
+  margin: 25px 0;
+
+  color: #666666;
+  font-size: 11px;
 }
+
+.lobby-divider::before,
+.lobby-divider::after {
+  content: "";
+
+  flex: 1;
+
+  height: 1px;
+  background: #333333;
+}
+
+.lobby-divider span {
+  padding: 0 12px;
+}
+
+
+/* ========================================
+   JOIN BY CODE
+   ======================================== */
+
+.join-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.join-row {
+  display: flex;
+  gap: 8px;
+}
+
+.game-code-input {
+  flex: 1;
+
+  letter-spacing: 6px;
+
+  font-size: 18px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.join-game-button {
+  min-height: 42px;
+
+  padding: 0 24px;
+
+  border: 1px solid #444444;
+  border-radius: 6px;
+
+  background: #222222;
+  color: #eeeeee;
+
+  font-family: inherit;
+  font-weight: 600;
+
+  cursor: pointer;
+
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.join-game-button:hover:not(:disabled) {
+  background: #303030;
+  border-color: #666666;
+  transform: translateY(-1px);
+}
+
+.join-game-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+
+/* ========================================
+   CURRENT GAMES
+   ======================================== */
+
+.games-section {
+  margin-top: 52px;
+}
+
+.games-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-bottom: 12px;
+
+  border-bottom: 1px solid #292929;
+}
+
+.games-heading h2 {
+  margin: 0;
+
+  font-size: 18px;
+}
+
+.game-count {
+  color: #666666;
+  font-size: 12px;
+}
+
+.empty-games {
+  min-height: 180px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  color: #666666;
+}
+
+.empty-games span {
+  font-size: 35px;
+  opacity: 0.4;
+}
+
+.empty-games p {
+  margin: 10px 0 2px;
+  color: #888888;
+}
+
+.empty-games small {
+  color: #555555;
+}
+
+
+/* ========================================
+   GAME LIST
+   ======================================== */
+
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+
+  padding-top: 22px;
+}
+
+.game-list-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.game-list-group h3 {
+  margin: 0 0 3px;
+
+  color: #777777;
+
+  font-size: 11px;
+  font-weight: 700;
+
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+
+/* ========================================
+   GAME CARD
+   ======================================== */
+
+.game-list-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+
+  min-height: 92px;
+
+  padding: 16px 18px;
+
+  box-sizing: border-box;
+
+  background: #181818;
+
+  border: 1px solid #2c2c2c;
+  border-radius: 9px;
+
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    transform 0.15s ease;
+}
+
+.game-list-card:hover {
+  background: #1b1b1b;
+  border-color: #3b3b3b;
+  transform: translateY(-1px);
+}
+
+.game-list-main {
+  min-width: 0;
+
+  display: flex;
+  align-items: center;
+  gap: 22px;
+
+  flex: 1;
+}
+
+.game-list-code {
+  min-width: 58px;
+
+  color: #777777;
+
+  font-size: 12px;
+  font-weight: 700;
+
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+
+
+/* ========================================
+   PLAYERS
+   ======================================== */
+
+.game-list-players {
+  min-width: 0;
+
+  display: grid;
+  grid-template-columns:
+    minmax(120px, 1fr)
+    34px
+    minmax(120px, 1fr);
+
+  align-items: center;
+
+  gap: 12px;
+
+  flex: 1;
+}
+
+.game-list-players > div {
+  min-width: 0;
+
+  display: grid;
+  grid-template-columns: 26px 1fr;
+  grid-template-rows: auto auto;
+
+  column-gap: 8px;
+
+  align-items: center;
+}
+
+.game-list-players > div > span {
+  grid-row: 1 / 3;
+
+  font-size: 24px;
+  line-height: 1;
+}
+
+.game-list-players strong {
+  min-width: 0;
+
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  color: #eeeeee;
+
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.game-list-players small {
+  margin-top: 2px;
+
+  color: #666666;
+
+  font-size: 10px;
+}
+
+.game-list-vs {
+  color: #4f4f4f;
+
+  font-size: 9px !important;
+  font-weight: 800;
+
+  text-align: center;
+
+  letter-spacing: 1px;
+}
+
+
+/* ========================================
+   GAME CARD ACTIONS
+   ======================================== */
+
+.game-list-actions {
+  display: flex;
+  align-items: center;
+
+  gap: 12px;
+
+  flex-shrink: 0;
+}
+
+.game-status-badge {
+  min-width: 60px;
+
+  padding: 5px 8px;
+
+  box-sizing: border-box;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  text-align: center;
+
+  letter-spacing: 0.4px;
+}
+
+.game-status-badge.waiting {
+  color: #d6c78e;
+
+  background: #252218;
+
+  border-color: #51492d;
+}
+
+.game-status-badge.playing {
+  color: #91d5a3;
+
+  background: #18231b;
+
+  border-color: #2d5136;
+}
+
+.game-list-actions .join-game-button {
+  min-width: 94px;
+  height: 38px;
+  min-height: 38px;
+
+  padding: 0 16px;
+}
+
+
+/* ========================================
+   GAME PAGE
+   ======================================== */
+
+.game-page {
+  width: 100%;
+  max-width: 900px;
+
+  margin: 20px auto 50px;
+}
+
+.game-page-top {
+  width: min(78vw, 680px);
+
+  margin: 0 auto 18px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.game-code-label {
+  color: #666666;
+
+  font-size: 10px;
+  font-weight: 700;
+
+  letter-spacing: 2px;
+}
+
+.game-page-top h1 {
+  margin: 2px 0 0;
+
+  font-size: 21px;
+}
+
+.back-lobby-button {
+  color: #aaaaaa;
+
+  text-decoration: none;
+  font-size: 13px;
+
+  transition: color 0.15s ease;
+}
+
+.back-lobby-button:hover {
+  color: #ffffff;
+}
+
+
+/* ========================================
+   GAME ROOM INFORMATION
+   ======================================== */
+
+.game-room-info {
+  width: min(78vw, 680px);
+
+  margin: 0 auto 16px;
+  padding: 14px 16px;
+
+  box-sizing: border-box;
+
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 8px 22px;
+
+  background: #181818;
+
+  border: 1px solid #2d2d2d;
+  border-radius: 7px;
+
+  color: #999999;
+
+  font-size: 12px;
+}
+
+.game-room-info strong {
+  color: #cccccc;
+  font-weight: 650;
+}
+
+
+/* ========================================
+   WARNINGS
+   ======================================== */
+
+.game-warning {
+  width: min(78vw, 680px);
+
+  box-sizing: border-box;
+
+  margin: 0 auto 15px;
+  padding: 10px 14px;
+
+  border: 1px solid #665329;
+  border-radius: 5px;
+
+  background: #2a2416;
+  color: #d8c58d;
+
+  font-size: 13px;
+}
+
+
+/* ========================================
+   GAME CONTAINER
+   ======================================== */
 
 .game-container {
   display: flex;
@@ -56,26 +693,37 @@
 }
 
 .game-status {
+  min-height: 25px;
+
   font-size: 18px;
   font-weight: 600;
-
-  min-height: 25px;
 }
+
+
+/* ========================================
+   CHESS BOARD
+   ======================================== */
 
 .chess-board {
   width: min(78vw, 680px);
+
   aspect-ratio: 1 / 1;
 
   display: grid;
 
-  grid-template-columns: repeat(8, 1fr);
-  grid-template-rows: repeat(8, 1fr);
+  grid-template-columns:
+    repeat(8, 1fr);
 
-  border-radius: 5px;
+  grid-template-rows:
+    repeat(8, 1fr);
+
   overflow: hidden;
 
+  border-radius: 5px;
+
   box-shadow:
-    0 15px 45px rgba(0, 0, 0, 0.45);
+    0 15px 45px
+    rgba(0, 0, 0, 0.45);
 }
 
 .chess-square {
@@ -98,6 +746,10 @@
   font-family: inherit;
 }
 
+.chess-square:disabled {
+  cursor: default;
+}
+
 .chess-square.light {
   background: #d8d8d8;
 }
@@ -108,16 +760,24 @@
 
 .chess-square.last-move {
   box-shadow:
-    inset 0 0 0 100px rgba(255, 220, 0, 0.22);
+    inset 0 0 0 100px
+    rgba(255, 220, 0, 0.22);
 }
 
 .chess-square.selected {
   box-shadow:
-    inset 0 0 0 100px rgba(90, 170, 255, 0.38);
+    inset 0 0 0 100px
+    rgba(90, 170, 255, 0.38);
 }
+
+
+/* ========================================
+   PIECES
+   ======================================== */
 
 .chess-piece {
   position: relative;
+
   z-index: 2;
 
   font-family:
@@ -125,31 +785,43 @@
     "Segoe UI Symbol",
     sans-serif;
 
-  font-size: clamp(30px, 6vw, 64px);
+  font-size:
+    clamp(
+      30px,
+      6vw,
+      64px
+    );
 
   line-height: 1;
 
   user-select: none;
 
-  transform: translateY(-2px);
+  transform:
+    translateY(-2px);
 }
 
 .white-piece {
   color: #ffffff;
 
   text-shadow:
-    0 1px 1px #000,
-    1px 0 1px #000,
-    -1px 0 1px #000,
-    0 -1px 1px #000;
+    0 1px 1px #000000,
+    1px 0 1px #000000,
+    -1px 0 1px #000000,
+    0 -1px 1px #000000;
 }
 
 .black-piece {
   color: #111111;
 
   text-shadow:
-    0 1px 1px rgba(255, 255, 255, 0.25);
+    0 1px 1px
+    rgba(255, 255, 255, 0.25);
 }
+
+
+/* ========================================
+   LEGAL MOVE INDICATORS
+   ======================================== */
 
 .legal-dot {
   position: absolute;
@@ -159,7 +831,8 @@
 
   border-radius: 50%;
 
-  background: rgba(0, 0, 0, 0.32);
+  background:
+    rgba(0, 0, 0, 0.32);
 
   z-index: 3;
 }
@@ -170,16 +843,22 @@
   width: 78%;
   height: 78%;
 
-  border-radius: 50%;
-
-  border: 5px solid rgba(0, 0, 0, 0.28);
-
   box-sizing: border-box;
+
+  border: 5px solid
+    rgba(0, 0, 0, 0.28);
+
+  border-radius: 50%;
 
   z-index: 3;
 
   pointer-events: none;
 }
+
+
+/* ========================================
+   BOARD COORDINATES
+   ======================================== */
 
 .rank-label,
 .file-label {
@@ -205,13 +884,18 @@
 
 .light .rank-label,
 .light .file-label {
-  color: #555;
+  color: #555555;
 }
 
 .dark .rank-label,
 .dark .file-label {
-  color: #ddd;
+  color: #dddddd;
 }
+
+
+/* ========================================
+   GAME CONTROLS
+   ======================================== */
 
 .game-controls {
   display: flex;
@@ -219,419 +903,173 @@
 }
 
 .restart-button {
-  border: 1px solid #444;
+  display: block;
 
-  background: #1c1c1c;
-  color: #eee;
+  margin: 0 auto 16px;
 
   padding: 10px 18px;
 
+  border: 1px solid #444444;
   border-radius: 6px;
+
+  background: #1c1c1c;
+  color: #eeeeee;
+
+  font-family: inherit;
+  font-size: 14px;
 
   cursor: pointer;
 
-  font-size: 14px;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.restart-button:hover:not(:disabled) {
+  background: #292929;
+  border-color: #666666;
+}
+
+.restart-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+
+/* ========================================
+   PROMOTION
+   ======================================== */
+
+.promotion-overlay {
+  position: fixed;
+  inset: 0;
+
+  z-index: 100;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 20px;
+
+  box-sizing: border-box;
+
+  background:
+    rgba(0, 0, 0, 0.72);
+
+  backdrop-filter:
+    blur(3px);
+}
+
+.promotion-dialog {
+  width: min(420px, 100%);
+
+  padding: 24px;
+
+  box-sizing: border-box;
+
+  background: #181818;
+
+  border: 1px solid #3a3a3a;
+  border-radius: 10px;
+
+  box-shadow:
+    0 20px 70px
+    rgba(0, 0, 0, 0.6);
+
+  text-align: center;
+}
+
+.promotion-dialog h2 {
+  margin: 0 0 20px;
+
+  font-size: 19px;
+}
+
+.promotion-options {
+  display: grid;
+
+  grid-template-columns:
+    repeat(4, 1fr);
+
+  gap: 8px;
+}
+
+.promotion-options button {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  gap: 6px;
+
+  padding: 12px 6px;
+
+  border: 1px solid #3b3b3b;
+  border-radius: 7px;
+
+  background: #222222;
+  color: #eeeeee;
+
+  font-family: inherit;
+  font-size: 32px;
+
+  cursor: pointer;
 
   transition:
     background 0.15s ease,
     border-color 0.15s ease;
 }
 
-.restart-button:hover {
-  background: #292929;
-  border-color: #666;
+.promotion-options button:hover {
+  background: #2d2d2d;
+  border-color: #666666;
 }
+
+.promotion-options button span {
+  font-size: 10px;
+  color: #999999;
+}
+
+
+/* ========================================
+   TABLET
+   ======================================== */
+
+@media (max-width: 800px) {
+  .game-list-card {
+    align-items: stretch;
+    flex-direction: column;
+
+    gap: 14px;
+  }
+
+  .game-list-actions {
+    justify-content: flex-end;
+
+    padding-top: 12px;
+
+    border-top: 1px solid #292929;
+  }
+}
+
+
+/* ========================================
+   MOBILE
+   ======================================== */
 
 @media (max-width: 700px) {
   .chess-main {
     padding: 15px;
   }
 
-  .chess-board {
-    width: min(94vw, 600px);
-  }
-
   .chess-header {
     padding: 0 16px;
   }
-}
 
-
-/* Lobby section niga */
-
-.chess-main {
-  align-items: flex-start;
-}
-
-.lobby {
-  width: 100%;
-  max-width: 900px;
-
-  margin: 40px auto;
-}
-
-.lobby-hero {
-  text-align: center;
-
-  margin-bottom: 35px;
-}
-
-.lobby-piece {
-  font-size: 60px;
-
-  margin-bottom: 5px;
-}
-
-.lobby-hero h1 {
-  margin: 0;
-
-  font-size: 38px;
-}
-
-.lobby-hero p {
-  margin-top: 8px;
-
-  color: #888;
-}
-
-.lobby-card {
-  width: 100%;
-  max-width: 500px;
-
-  margin: 0 auto;
-
-  padding: 28px;
-
-  box-sizing: border-box;
-
-  background: #181818;
-
-  border: 1px solid #303030;
-  border-radius: 10px;
-
-  box-shadow:
-    0 15px 40px rgba(0, 0, 0, 0.3);
-}
-
-
-/* USERNAME */
-
-.username-field {
-  display: flex;
-  flex-direction: column;
-
-  gap: 8px;
-}
-
-.username-field label,
-.join-section label {
-  font-size: 13px;
-  font-weight: 600;
-
-  color: #aaa;
-}
-
-.username-field input,
-.game-code-input {
-  width: 100%;
-
-  box-sizing: border-box;
-
-  border: 1px solid #3a3a3a;
-  border-radius: 6px;
-
-  background: #101010;
-  color: #eee;
-
-  padding: 12px 14px;
-
-  outline: none;
-
-  font-size: 15px;
-}
-
-.username-field input:focus,
-.game-code-input:focus {
-  border-color: #777;
-}
-
-
-/* ERRORS */
-
-.input-error {
-  margin: 2px 0 0;
-
-  color: #e87979;
-
-  font-size: 12px;
-}
-
-
-/* CREATE */
-
-.create-game-button {
-  width: 100%;
-
-  margin-top: 20px;
-
-  padding: 13px;
-
-  border: 0;
-  border-radius: 6px;
-
-  background: #eeeeee;
-  color: #111111;
-
-  font-size: 14px;
-  font-weight: 700;
-
-  cursor: pointer;
-}
-
-.create-game-button:hover {
-  background: #ffffff;
-}
-
-
-/* DIVIDER */
-
-.lobby-divider {
-  display: flex;
-  align-items: center;
-
-  margin: 25px 0;
-
-  color: #666;
-
-  font-size: 11px;
-}
-
-.lobby-divider::before,
-.lobby-divider::after {
-  content: "";
-
-  flex: 1;
-
-  height: 1px;
-
-  background: #333;
-}
-
-.lobby-divider span {
-  padding: 0 12px;
-}
-
-
-/* JOIN */
-
-.join-section {
-  display: flex;
-  flex-direction: column;
-
-  gap: 8px;
-}
-
-.join-row {
-  display: flex;
-
-  gap: 8px;
-}
-
-.game-code-input {
-  flex: 1;
-
-  letter-spacing: 6px;
-
-  font-size: 18px;
-  font-weight: 700;
-
-  text-align: center;
-}
-
-.join-game-button {
-  padding: 0 24px;
-
-  border: 1px solid #444;
-  border-radius: 6px;
-
-  background: #222;
-  color: #eee;
-
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.join-game-button:hover {
-  background: #303030;
-}
-
-
-/* ================================
-   CURRENT GAMES
-   ================================ */
-
-.games-section {
-  margin-top: 50px;
-}
-
-.games-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  padding-bottom: 12px;
-
-  border-bottom: 1px solid #292929;
-}
-
-.games-heading h2 {
-  margin: 0;
-
-  font-size: 18px;
-}
-
-.game-count {
-  color: #666;
-
-  font-size: 12px;
-}
-
-.empty-games {
-  min-height: 180px;
-
-  display: flex;
-  flex-direction: column;
-
-  align-items: center;
-  justify-content: center;
-
-  color: #666;
-}
-
-.empty-games span {
-  font-size: 35px;
-
-  opacity: 0.4;
-}
-
-.empty-games p {
-  margin: 10px 0 2px;
-
-  color: #888;
-}
-
-.empty-games small {
-  color: #555;
-}
-
-
-/* ================================
-   HEADER
-   ================================ */
-
-.chess-header {
-  justify-content: space-between;
-}
-
-.chess-header-right {
-  display: flex;
-  align-items: center;
-
-  gap: 18px;
-}
-
-.header-username {
-  color: #888;
-
-  font-size: 13px;
-}
-
-.portfolio-link {
-  color: #bbb;
-
-  text-decoration: none;
-
-  font-size: 13px;
-}
-
-.portfolio-link:hover {
-  color: white;
-}
-
-
-/* ================================
-   GAME PAGE
-   ================================ */
-
-.game-page {
-  width: 100%;
-  max-width: 900px;
-
-  margin: 20px auto 50px;
-}
-
-.game-page-top {
-  width: min(78vw, 680px);
-
-  margin: 0 auto 18px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.game-code-label {
-  color: #666;
-
-  font-size: 10px;
-  font-weight: 700;
-
-  letter-spacing: 2px;
-}
-
-.game-page-top h1 {
-  margin: 2px 0 0;
-
-  font-size: 21px;
-}
-
-.back-lobby-button {
-  color: #aaa;
-
-  text-decoration: none;
-
-  font-size: 13px;
-}
-
-.back-lobby-button:hover {
-  color: white;
-}
-
-.game-warning {
-  width: min(78vw, 680px);
-
-  box-sizing: border-box;
-
-  margin: 0 auto 15px;
-
-  padding: 10px 14px;
-
-  border: 1px solid #665329;
-  border-radius: 5px;
-
-  background: #2a2416;
-  color: #d8c58d;
-
-  font-size: 13px;
-}
-
-
-/* ================================
-   MOBILE
-   ================================ */
-
-@media (max-width: 700px) {
+  .header-username {
+    display: none;
+  }
 
   .lobby {
     margin-top: 20px;
@@ -641,17 +1079,153 @@
     padding: 20px;
   }
 
+  .lobby-hero {
+    margin-bottom: 25px;
+  }
+
+  .lobby-piece {
+    font-size: 48px;
+  }
+
   .lobby-hero h1 {
     font-size: 30px;
   }
 
+  .games-section {
+    margin-top: 38px;
+  }
+
   .game-page-top,
-  .game-warning {
+  .game-warning,
+  .game-room-info {
     width: min(94vw, 600px);
   }
 
-  .header-username {
-    display: none;
+  .chess-board {
+    width: min(94vw, 600px);
   }
 
+  .game-list-main {
+    align-items: flex-start;
+    flex-direction: column;
+
+    gap: 12px;
+  }
+
+  .game-list-code {
+    min-width: 0;
+  }
+
+  .game-list-players {
+    width: 100%;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      26px
+      minmax(0, 1fr);
+
+    gap: 6px;
+  }
+
+  .game-list-players > div {
+    grid-template-columns:
+      22px minmax(0, 1fr);
+
+    column-gap: 5px;
+  }
+
+  .game-list-players > div > span {
+    font-size: 20px;
+  }
+
+  .game-list-players strong {
+    font-size: 12px;
+  }
+
+  .game-list-actions {
+    justify-content: space-between;
+  }
+
+  .game-list-actions .join-game-button {
+    min-width: 105px;
+  }
+}
+
+
+/* ========================================
+   SMALL MOBILE
+   ======================================== */
+
+@media (max-width: 430px) {
+  .chess-logo {
+    font-size: 17px;
+  }
+
+  .portfolio-link {
+    font-size: 12px;
+  }
+
+  .lobby-card {
+    padding: 17px;
+  }
+
+  .join-row {
+    flex-direction: column;
+  }
+
+  .join-game-button {
+    min-height: 43px;
+  }
+
+  .game-list-card {
+    padding: 14px;
+  }
+
+  .game-status-badge {
+    min-width: 0;
+  }
+
+  .promotion-options {
+    grid-template-columns:
+      repeat(2, 1fr);
+  }
+
+
+
+
+  /* ========================================
+   FINISHED GAMES
+   ======================================== */
+
+  .finished-games-section {
+    margin-top: 42px;
+  }
+
+  .finished-game-card {
+    opacity: 0.78;
+  }
+
+  .finished-game-card:hover {
+    opacity: 1;
+  }
+
+  .finished-result {
+    max-width: 190px;
+
+    color: #888888;
+
+    font-size: 11px;
+    font-weight: 600;
+
+    text-align: right;
+
+    line-height: 1.35;
+  }
+
+  @media (max-width: 700px) {
+    .finished-result {
+      max-width: none;
+      text-align: left;
+    }
+  }
 }

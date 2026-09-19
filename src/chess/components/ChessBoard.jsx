@@ -6,6 +6,9 @@ import {
 import { Chess } from 'chess.js'
 import { submitMove } from '../lib/games'
 
+const STARTING_FEN =
+  'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+
 const PIECES = {
   wp: '♙',
   wn: '♘',
@@ -33,17 +36,87 @@ const FILES = [
   'h',
 ]
 
+function createGameFromState(
+  fen,
+  pgn
+) {
+  /*
+   * PGN is preferred because it
+   * contains the complete move
+   * history.
+   *
+   * FEN only contains the current
+   * board position.
+   */
+  if (
+    pgn &&
+    pgn.trim()
+  ) {
+    try {
+      const historyGame =
+        new Chess()
+
+      historyGame.loadPgn(
+        pgn
+      )
+
+      /*
+       * Never blindly trust that the
+       * PGN and database FEN agree.
+       */
+      if (
+        historyGame.fen() ===
+        fen
+      ) {
+        return historyGame
+      }
+
+      console.warn(
+        'PGN/FEN mismatch. Falling back to FEN.'
+      )
+    } catch (error) {
+      console.warn(
+        'Could not load PGN. Falling back to FEN:',
+        error
+      )
+    }
+  }
+
+  /*
+   * For a brand-new game, use the
+   * normal Chess constructor so the
+   * generated PGN starts cleanly.
+   */
+  if (
+    fen === STARTING_FEN
+  ) {
+    return new Chess()
+  }
+
+  return new Chess(
+    fen
+  )
+}
+
 function ChessBoard({
   gameId,
   playerColor = null,
   fen,
+  pgn = '',
   gameStatus = 'playing',
   winner = null,
   result = null,
   onGameUpdate,
 }) {
-  const [game, setGame] = useState(
-    () => new Chess(fen)
+  const [
+    game,
+    setGame,
+  ] = useState(
+    () =>
+      createGameFromState(
+        fen,
+        pgn
+      )
   )
 
   const [
@@ -83,25 +156,44 @@ function ChessBoard({
 
     try {
       const newGame =
-        new Chess(fen)
+        createGameFromState(
+          fen,
+          pgn
+        )
 
-      setGame(newGame)
-      setSelectedSquare(null)
-      setLegalSquares([])
-      setPendingPromotion(null)
+      setGame(
+        newGame
+      )
+
+      setSelectedSquare(
+        null
+      )
+
+      setLegalSquares(
+        []
+      )
+
+      setPendingPromotion(
+        null
+      )
     } catch (error) {
       console.error(
-        'Invalid game FEN:',
+        'Invalid game state:',
         error
       )
     }
-  }, [fen])
+  }, [
+    fen,
+    pgn,
+  ])
 
   function getSquare(
     row,
     col
   ) {
-    if (playerColor === 'b') {
+    if (
+      playerColor === 'b'
+    ) {
       return `${
         FILES[7 - col]
       }${row + 1}`
@@ -118,15 +210,12 @@ function ChessBoard({
     if (
       chessGame.isCheckmate()
     ) {
-      /*
-       * chessGame.turn() is the
-       * checkmated player.
-       */
       return {
         finished: true,
 
         winner:
-          chessGame.turn() === 'w'
+          chessGame.turn() ===
+          'w'
             ? 'black'
             : 'white',
 
@@ -200,19 +289,19 @@ function ChessBoard({
     to,
     promotion = undefined
   ) {
-    if (submittingMove) {
-      return
-    }
-
     if (
-      gameStatus !== 'playing'
+      submittingMove
     ) {
       return
     }
 
-    /*
-     * Spectators cannot move.
-     */
+    if (
+      gameStatus !==
+      'playing'
+    ) {
+      return
+    }
+
     if (
       playerColor !== 'w' &&
       playerColor !== 'b'
@@ -220,10 +309,6 @@ function ChessBoard({
       return
     }
 
-    /*
-     * Player cannot move during
-     * opponent's turn.
-     */
     if (
       game.turn() !==
       playerColor
@@ -235,8 +320,36 @@ function ChessBoard({
       game.fen()
 
     try {
+      /*
+       * Rebuild from the COMPLETE
+       * stored PGN before making the
+       * next move.
+       *
+       * This preserves repetition
+       * history and produces a full
+       * PGN instead of a one-move PGN.
+       */
       const newGame =
-        new Chess(expectedFen)
+        createGameFromState(
+          expectedFen,
+          pgn
+        )
+
+      /*
+       * Safety check.
+       *
+       * The reconstructed state must
+       * match the exact board state
+       * we're trying to update.
+       */
+      if (
+        newGame.fen() !==
+        expectedFen
+      ) {
+        throw new Error(
+          'Game history does not match the current position.'
+        )
+      }
 
       const move =
         newGame.move({
@@ -244,7 +357,9 @@ function ChessBoard({
           to,
 
           ...(promotion
-            ? { promotion }
+            ? {
+                promotion,
+              }
             : {}),
         })
 
@@ -252,16 +367,15 @@ function ChessBoard({
         return
       }
 
-      /*
-       * Determine whether this move
-       * ended the game.
-       */
       const gameResult =
         getGameResult(
           newGame
         )
 
-      setSubmittingMove(true)
+      setSubmittingMove(
+        true
+      )
+
       setMoveError('')
 
       const updatedGame =
@@ -273,6 +387,10 @@ function ChessBoard({
           newFen:
             newGame.fen(),
 
+          /*
+           * This is now the complete
+           * game PGN.
+           */
           newPgn:
             newGame.pgn(),
 
@@ -289,26 +407,39 @@ function ChessBoard({
             gameResult.result,
         })
 
-      /*
-       * Only accept the position
-       * after Supabase accepted it.
-       */
-      setGame(
-        new Chess(
-          updatedGame.fen
+      const updatedChess =
+        createGameFromState(
+          updatedGame.fen,
+          updatedGame.pgn
         )
+
+      setGame(
+        updatedChess
       )
 
       setLastMove({
-        from: move.from,
-        to: move.to,
+        from:
+          move.from,
+
+        to:
+          move.to,
       })
 
-      setSelectedSquare(null)
-      setLegalSquares([])
-      setPendingPromotion(null)
+      setSelectedSquare(
+        null
+      )
 
-      if (onGameUpdate) {
+      setLegalSquares(
+        []
+      )
+
+      setPendingPromotion(
+        null
+      )
+
+      if (
+        onGameUpdate
+      ) {
         onGameUpdate(
           updatedGame
         )
@@ -324,29 +455,44 @@ function ChessBoard({
         'Could not submit move.'
       )
 
-      /*
-       * Restore database position.
-       */
       try {
         setGame(
-          new Chess(fen)
+          createGameFromState(
+            fen,
+            pgn
+          )
         )
       } catch {
-        // Ignore invalid fallback FEN.
+        /*
+         * Ignore invalid fallback
+         * state.
+         */
       }
 
-      setSelectedSquare(null)
-      setLegalSquares([])
-      setPendingPromotion(null)
+      setSelectedSquare(
+        null
+      )
+
+      setLegalSquares(
+        []
+      )
+
+      setPendingPromotion(
+        null
+      )
     } finally {
-      setSubmittingMove(false)
+      setSubmittingMove(
+        false
+      )
     }
   }
 
   function choosePromotion(
     piece
   ) {
-    if (!pendingPromotion) {
+    if (
+      !pendingPromotion
+    ) {
       return
     }
 
@@ -360,23 +506,25 @@ function ChessBoard({
   function selectSquare(
     square
   ) {
-    if (submittingMove) {
-      return
-    }
-
     if (
-      gameStatus !== 'playing'
+      submittingMove
     ) {
       return
     }
 
-    if (pendingPromotion) {
+    if (
+      gameStatus !==
+      'playing'
+    ) {
       return
     }
 
-    /*
-     * Spectator.
-     */
+    if (
+      pendingPromotion
+    ) {
+      return
+    }
+
     if (
       playerColor !== 'w' &&
       playerColor !== 'b'
@@ -384,9 +532,6 @@ function ChessBoard({
       return
     }
 
-    /*
-     * Opponent's turn.
-     */
     if (
       game.turn() !==
       playerColor
@@ -395,12 +540,13 @@ function ChessBoard({
     }
 
     const piece =
-      game.get(square)
+      game.get(
+        square
+      )
 
-    /*
-     * Select first piece.
-     */
-    if (!selectedSquare) {
+    if (
+      !selectedSquare
+    ) {
       if (!piece) {
         return
       }
@@ -432,22 +578,21 @@ function ChessBoard({
       return
     }
 
-    /*
-     * Deselect.
-     */
     if (
       square ===
       selectedSquare
     ) {
-      setSelectedSquare(null)
-      setLegalSquares([])
+      setSelectedSquare(
+        null
+      )
+
+      setLegalSquares(
+        []
+      )
+
       return
     }
 
-    /*
-     * Select another friendly
-     * piece.
-     */
     if (
       piece &&
       piece.color ===
@@ -473,16 +618,19 @@ function ChessBoard({
       return
     }
 
-    /*
-     * Destination must be legal.
-     */
     if (
       !legalSquares.includes(
         square
       )
     ) {
-      setSelectedSquare(null)
-      setLegalSquares([])
+      setSelectedSquare(
+        null
+      )
+
+      setLegalSquares(
+        []
+      )
+
       return
     }
 
@@ -501,16 +649,20 @@ function ChessBoard({
         (
           selectedPiece.color ===
             'w' &&
-          targetRank === '8'
+          targetRank ===
+            '8'
         ) ||
         (
           selectedPiece.color ===
             'b' &&
-          targetRank === '1'
+          targetRank ===
+            '1'
         )
       )
 
-    if (isPromotion) {
+    if (
+      isPromotion
+    ) {
       setPendingPromotion({
         from:
           selectedSquare,
@@ -533,10 +685,12 @@ function ChessBoard({
 
   function getFinishedStatus() {
     if (
-      result === 'checkmate'
+      result ===
+      'checkmate'
     ) {
       if (
-        winner === 'white'
+        winner ===
+        'white'
       ) {
         return (
           'Checkmate — White wins!'
@@ -544,7 +698,8 @@ function ChessBoard({
       }
 
       if (
-        winner === 'black'
+        winner ===
+        'black'
       ) {
         return (
           'Checkmate — Black wins!'
@@ -553,7 +708,31 @@ function ChessBoard({
     }
 
     if (
-      result === 'stalemate'
+      result ===
+      'resignation'
+    ) {
+      if (
+        winner ===
+        'white'
+      ) {
+        return (
+          'White wins by resignation'
+        )
+      }
+
+      if (
+        winner ===
+        'black'
+      ) {
+        return (
+          'Black wins by resignation'
+        )
+      }
+    }
+
+    if (
+      result ===
+      'stalemate'
     ) {
       return (
         'Draw — Stalemate'
@@ -588,25 +767,27 @@ function ChessBoard({
     }
 
     if (
-      result === 'draw'
+      result ===
+      'draw'
     ) {
       return 'Draw'
     }
 
     if (
-      result === 'cancelled'
+      result ===
+      'cancelled'
     ) {
-      return 'Game cancelled'
+      return (
+        'Game cancelled'
+      )
     }
 
-    return 'Game finished'
+    return (
+      'Game finished'
+    )
   }
 
   function getStatus() {
-    /*
-     * Database result wins over
-     * local board calculation.
-     */
     if (
       gameStatus ===
       'finished'
@@ -616,7 +797,9 @@ function ChessBoard({
       )
     }
 
-    if (submittingMove) {
+    if (
+      submittingMove
+    ) {
       return (
         'Submitting move...'
       )
