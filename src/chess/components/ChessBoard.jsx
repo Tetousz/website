@@ -321,6 +321,41 @@ function ChessBoard({
       setMoveError('')
 
       /*
+       * Optimistic update:
+       *
+       * The move has already been checked locally above,
+       * so show it immediately instead of waiting for the
+       * Edge Function + database round trip.
+       *
+       * This is only a visual/client-side preview. The
+       * server remains authoritative and independently
+       * validates the move.
+       */
+      setGame(
+        previewGame
+      )
+
+      setLastMove({
+        from:
+          previewMove.from,
+
+        to:
+          previewMove.to,
+      })
+
+      setSelectedSquare(
+        null
+      )
+
+      setLegalSquares(
+        []
+      )
+
+      setPendingPromotion(
+        null
+      )
+
+      /*
        * IMPORTANT:
        *
        * We no longer send:
@@ -762,14 +797,6 @@ function ChessBoard({
     ) {
       return (
         getFinishedStatus()
-      )
-    }
-
-    if (
-      submittingMove
-    ) {
-      return (
-        'Submitting move...'
       )
     }
 

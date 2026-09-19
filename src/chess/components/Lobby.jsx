@@ -193,14 +193,7 @@ function Lobby() {
             }
           }
         )
-        .subscribe(
-          (status) => {
-            console.log(
-              'Lobby realtime status:',
-              status
-            )
-          }
-        )
+        .subscribe()
 
     return () => {
       supabase.removeChannel(

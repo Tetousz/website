@@ -1,16 +1,5 @@
 import { supabase } from './supabase'
 
-const STARTING_FEN =
-  'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
-
-function generateGameId() {
-  return Math.floor(
-    Math.random() * 10000
-  )
-    .toString()
-    .padStart(4, '0')
-}
-
 export async function getGames() {
   const {
     data,
@@ -137,17 +126,6 @@ export async function submitMove({
     )
 
   if (error) {
-    /*
-     * Supabase Function errors don't
-     * always expose the JSON response
-     * message directly through
-     * error.message.
-     *
-     * Try to read the function's
-     * response body so errors such as
-     * "Illegal move." are visible in
-     * the UI.
-     */
     try {
       const response =
         error.context
@@ -233,6 +211,13 @@ export async function createGame(
   user,
   username
 ) {
+  /*
+   * Keep this check for better UX.
+   *
+   * It is NOT the security check.
+   * create_chess_game() performs the
+   * authoritative check server-side.
+   */
   const existingGame =
     await getActiveGameForUser(
       user.id
@@ -253,96 +238,65 @@ export async function createGame(
     throw error
   }
 
-  for (
-    let attempt = 0;
-    attempt < 20;
-    attempt++
-  ) {
-    const gameId =
-      generateGameId()
-
-    const existingId =
-      await getGame(
-        gameId
-      )
-
-    if (existingId) {
-      continue
+  /*
+   * The browser now sends ONLY the
+   * display name.
+   *
+   * PostgreSQL controls:
+   *
+   * - auth user ID
+   * - game ID
+   * - player color
+   * - starting FEN
+   * - empty move history
+   * - initial turn
+   * - status
+   * - winner/result
+   */
+  const {
+    data,
+    error,
+  } = await supabase.rpc(
+    'create_chess_game',
+    {
+      player_name:
+        username,
     }
+  )
 
-    const creatorIsWhite =
-      Math.random() < 0.5
-
-    const game = {
-      id:
-        gameId,
-
-      status:
-        'waiting',
-
-      white_id:
-        creatorIsWhite
-          ? user.id
-          : null,
-
-      white_name:
-        creatorIsWhite
-          ? username
-          : null,
-
-      black_id:
-        creatorIsWhite
-          ? null
-          : user.id,
-
-      black_name:
-        creatorIsWhite
-          ? null
-          : username,
-
-      fen:
-        STARTING_FEN,
-
-      pgn:
-        '',
-
-      moves:
-        [],
-
-      turn:
-        'w',
-
-      winner:
-        null,
-
-      result:
-        null,
-    }
-
-    const {
-      data,
-      error,
-    } = await supabase
-      .from('games')
-      .insert(game)
-      .select()
-      .single()
-
-    if (!error) {
-      return data
-    }
-
+  if (error) {
+    /*
+     * Preserve the error shape the UI
+     * already understands when possible.
+     */
     if (
-      error.code ===
-      '23505'
+      error.message
+        ?.toLowerCase()
+        .includes(
+          'already have an active game'
+        )
     ) {
-      continue
+      const activeGame =
+        await getActiveGameForUser(
+          user.id
+        )
+
+      const activeError =
+        new Error(
+          'You already have an active game.'
+        )
+
+      activeError.code =
+        'ACTIVE_GAME_EXISTS'
+
+      activeError.game =
+        activeGame
+
+      throw activeError
     }
 
     throw error
   }
 
-  throw new Error(
-    'Could not generate an available game ID.'
-  )
+  return data
 }
