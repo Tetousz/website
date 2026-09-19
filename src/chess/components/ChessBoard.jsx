@@ -205,10 +205,9 @@ function ChessBoard({
       )
 
       /*
-       * Legacy games created before
-       * move history existed can still
-       * display their final/current
-       * board from FEN.
+       * Legacy games without complete
+       * move history can still display
+       * their current position from FEN.
        */
       try {
         setGame(
@@ -247,86 +246,6 @@ function ChessBoard({
     }${8 - row}`
   }
 
-  function getGameResult(
-    chessGame
-  ) {
-    if (
-      chessGame.isCheckmate()
-    ) {
-      return {
-        finished: true,
-
-        winner:
-          chessGame.turn() ===
-          'w'
-            ? 'black'
-            : 'white',
-
-        result:
-          'checkmate',
-      }
-    }
-
-    if (
-      chessGame.isStalemate()
-    ) {
-      return {
-        finished: true,
-        winner: 'draw',
-        result: 'stalemate',
-      }
-    }
-
-    if (
-      chessGame.isThreefoldRepetition()
-    ) {
-      return {
-        finished: true,
-        winner: 'draw',
-        result:
-          'threefold_repetition',
-      }
-    }
-
-    if (
-      chessGame.isInsufficientMaterial()
-    ) {
-      return {
-        finished: true,
-        winner: 'draw',
-        result:
-          'insufficient_material',
-      }
-    }
-
-    if (
-      chessGame.isDrawByFiftyMoves()
-    ) {
-      return {
-        finished: true,
-        winner: 'draw',
-        result:
-          'fifty_move_rule',
-      }
-    }
-
-    if (
-      chessGame.isDraw()
-    ) {
-      return {
-        finished: true,
-        winner: 'draw',
-        result: 'draw',
-      }
-    }
-
-    return {
-      finished: false,
-      winner: null,
-      result: null,
-    }
-  }
-
   async function finishMove(
     from,
     to,
@@ -359,22 +278,24 @@ function ChessBoard({
       return
     }
 
-    const expectedFen =
-      game.fen()
+    /*
+     * The browser still checks the move
+     * locally for a responsive UI.
+     *
+     * This is NOT the security check.
+     * The Edge Function independently
+     * validates the same move.
+     */
+    const previewGame =
+      new Chess(
+        game.fen()
+      )
+
+    let previewMove
 
     try {
-      /*
-       * Reconstruct the entire game
-       * before every submitted move.
-       */
-      const newGame =
-        createGameFromMoves(
-          moves,
-          expectedFen
-        )
-
-      const move =
-        newGame.move({
+      previewMove =
+        previewGame.move({
           from,
           to,
 
@@ -384,82 +305,47 @@ function ChessBoard({
               }
             : {}),
         })
+    } catch {
+      return
+    }
 
-      if (!move) {
-        return
-      }
+    if (!previewMove) {
+      return
+    }
 
-      /*
-       * Store only the information
-       * required to replay the move.
-       */
-      const storedMove = {
-        from:
-          move.from,
-
-        to:
-          move.to,
-      }
-
-      if (
-        move.promotion
-      ) {
-        storedMove.promotion =
-          move.promotion
-      }
-
-      const currentMoves =
-        Array.isArray(moves)
-          ? moves
-          : []
-
-      const newMoves = [
-        ...currentMoves,
-        storedMove,
-      ]
-
-      /*
-       * Because newGame was created by
-       * replaying every previous move,
-       * chess.js now has the complete
-       * repetition history here.
-       */
-      const gameResult =
-        getGameResult(
-          newGame
-        )
-
+    try {
       setSubmittingMove(
         true
       )
 
       setMoveError('')
 
+      /*
+       * IMPORTANT:
+       *
+       * We no longer send:
+       *
+       * - FEN
+       * - PGN
+       * - move history
+       * - whose turn is next
+       * - winner
+       * - result
+       *
+       * The server calculates all of
+       * those values itself.
+       */
       const updatedGame =
         await submitMove({
           gameId,
 
-          expectedFen,
+          from,
 
-          newFen:
-            newGame.fen(),
+          to,
 
-          newPgn:
-            newGame.pgn(),
-
-          newMoves,
-
-          newTurn:
-            newGame.turn(),
-
-          gameFinished:
-            gameResult.finished,
-
-          gameWinner:
-            gameResult.winner,
-
-          gameResult:
-            gameResult.result,
+          promotion:
+            promotion ||
+            null,
         })
 
       const updatedChess =
@@ -472,13 +358,31 @@ function ChessBoard({
         updatedChess
       )
 
-      setLastMove({
-        from:
-          move.from,
+      const updatedMoves =
+        Array.isArray(
+          updatedGame.moves
+        )
+          ? updatedGame.moves
+          : []
 
-        to:
-          move.to,
-      })
+      if (
+        updatedMoves.length >
+        0
+      ) {
+        const latestMove =
+          updatedMoves[
+            updatedMoves.length -
+            1
+          ]
+
+        setLastMove({
+          from:
+            latestMove.from,
+
+          to:
+            latestMove.to,
+        })
+      }
 
       setSelectedSquare(
         null
@@ -510,6 +414,10 @@ function ChessBoard({
         'Could not submit move.'
       )
 
+      /*
+       * Restore the authoritative
+       * state supplied through props.
+       */
       try {
         setGame(
           createGameFromMoves(

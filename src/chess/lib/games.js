@@ -116,56 +116,75 @@ export async function joinGame(
 
 export async function submitMove({
   gameId,
-  expectedFen,
-  newFen,
-  newPgn,
-  newMoves,
-  newTurn,
-
-  gameFinished = false,
-  gameWinner = null,
-  gameResult = null,
+  from,
+  to,
+  promotion = null,
 }) {
   const {
     data,
     error,
-  } = await supabase.rpc(
-    'submit_chess_move',
-    {
-      target_game_id:
-        gameId,
-
-      expected_fen:
-        expectedFen,
-
-      new_fen:
-        newFen,
-
-      new_pgn:
-        newPgn,
-
-      new_moves:
-        newMoves,
-
-      new_turn:
-        newTurn,
-
-      game_finished:
-        gameFinished,
-
-      game_winner:
-        gameWinner,
-
-      game_result:
-        gameResult,
-    }
-  )
+  } =
+    await supabase.functions.invoke(
+      'chess-move',
+      {
+        body: {
+          gameId,
+          from,
+          to,
+          promotion,
+        },
+      }
+    )
 
   if (error) {
+    /*
+     * Supabase Function errors don't
+     * always expose the JSON response
+     * message directly through
+     * error.message.
+     *
+     * Try to read the function's
+     * response body so errors such as
+     * "Illegal move." are visible in
+     * the UI.
+     */
+    try {
+      const response =
+        error.context
+
+      if (response) {
+        const body =
+          await response.json()
+
+        if (body?.error) {
+          throw new Error(
+            body.error
+          )
+        }
+      }
+    } catch (
+      responseError
+    ) {
+      if (
+        responseError instanceof
+          Error &&
+        responseError.message !==
+          error.message
+      ) {
+        throw responseError
+      }
+    }
+
     throw error
   }
 
-  return data
+  if (!data?.game) {
+    throw new Error(
+      'Move server returned an invalid response.'
+    )
+  }
+
+  return data.game
 }
 
 export async function resignGame(
