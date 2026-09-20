@@ -1,184 +1,3502 @@
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=Noto+Serif+SC:wght@400;500;600&display=swap');
 
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
+:root {
+
+  --bg: #f4f1e9;
+
+  --fg: #171713;
+
+  --muted: #77736a;
+
+  --line: rgba(23, 23, 19, 0.2);
+
+  --card: rgba(250, 248, 241, 0.88);
+
+  --accent: #a12620;
+
+  --accent-soft: rgba(161, 38, 32, 0.09);
+
+  --grid-0: #dedbd1;
+
+  --grid-1: #b7c4a6;
+
+  --grid-2: #748d63;
+
+  --grid-3: #4f6d43;
+
+  --grid-4: #263f27;
+
+  --shadow: 0 20px 55px rgba(36, 30, 20, 0.08);
+
 }
 
-.hero {
+:root[data-theme='dark'] {
+
+  --bg: #11110f;
+
+  --fg: #e9e5da;
+
+  --muted: #999489;
+
+  --line: rgba(233, 229, 218, 0.2);
+
+  --card: rgba(24, 24, 20, 0.93);
+
+  --accent: #c74a40;
+
+  --accent-soft: rgba(199, 74, 64, 0.11);
+
+  --grid-0: #252821;
+
+  --grid-1: #465540;
+
+  --grid-2: #718b61;
+
+  --grid-3: #86a873;
+
+  --grid-4: #b4d795;
+
+  --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+
+}
+
+* {
+
+  box-sizing: border-box;
+
+}
+
+html,
+
+body,
+
+#root {
+
+  min-width: 320px;
+
+  min-height: 100%;
+
+  margin: 0;
+
+}
+
+html {
+
+  background: var(--bg);
+
+}
+
+body {
+
+  min-height: 100vh;
+
+  background: var(--bg);
+
+  color: var(--fg);
+
+  font-family:
+
+    'IBM Plex Mono',
+
+    'Noto Serif SC',
+
+    monospace;
+
+  transition:
+
+background 240ms ease,
+
+    color 240ms ease;
+
+}
+
+button,
+
+a {
+
+  font: inherit;
+
+}
+
+.landing {
+
   position: relative;
 
-  .base,
-  .framework,
-  .vite {
-    inset-inline: 0;
-    margin: 0 auto;
-  }
+  width: 100%;
 
-  .base {
-    width: 170px;
-    position: relative;
-    z-index: 0;
-  }
+  min-height: 100vh;
 
-  .framework,
-  .vite {
-    position: absolute;
-  }
+  overflow: hidden;
 
-  .framework {
-    z-index: 1;
-    top: 34px;
-    height: 28px;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(44deg) rotateY(39deg)
-      scale(1.4);
-  }
+  background:
 
-  .vite {
-    z-index: 0;
-    top: 107px;
-    height: 26px;
-    width: auto;
-    transform: perspective(2000px) rotateZ(300deg) rotateX(40deg) rotateY(39deg)
-      scale(0.8);
-  }
+    linear-gradient(
+
+      90deg,
+
+      transparent 49.96%,
+
+      color-mix(in srgb, var(--fg) 3%, transparent) 50%,
+
+      transparent 50.04%
+
+    ),
+
+    var(--bg);
+
+  color: var(--fg);
+
 }
 
-#center {
+.background-mark {
+
+  position: absolute;
+
+  z-index: 0;
+
+  color: var(--fg);
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: clamp(180px, 24vw, 390px);
+
+  line-height: 1;
+
+  opacity: 0.018;
+
+  pointer-events: none;
+
+  user-select: none;
+
+}
+
+.mark-one {
+
+  top: -80px;
+
+  left: -35px;
+
+}
+
+.mark-two {
+
+  right: -35px;
+
+  bottom: -115px;
+
+}
+
+.hello,
+
+.contacts-position,
+
+.repo-position,
+
+.github-position,
+
+.chess-position,
+
+.portfolio-position,
+
+.name-card,
+
+.playing-position,
+
+.visitor-position,
+
+.theme-switch {
+
+  position: absolute;
+
+  z-index: 2;
+
+}
+
+.hello {
+
+  top: 10.7%;
+
+  left: 50%;
+
   display: flex;
-  flex-direction: column;
-  gap: 25px;
-  place-content: center;
+
+  align-items: center;
+
+  gap: 13px;
+
+  transform: translateX(-50%);
+
+  font-size: clamp(17px, 1.8vw, 26px);
+
+  letter-spacing: 0.045em;
+
+  white-space: nowrap;
+
+}
+
+
+
+
+
+.ferretusz-trigger {
+
+  position: relative;
+
+  margin: 0;
+
+  padding: 2px 5px;
+
+  border: 0;
+
+  background: transparent;
+
+  color: inherit;
+
+  cursor: pointer;
+
+  font: inherit;
+
+  letter-spacing: inherit;
+
+  transition:
+
+    color 120ms ease,
+
+background 120ms ease,
+
+    transform 120ms ease;
+
+}
+
+.ferretusz-trigger:hover,
+
+.ferretusz-trigger:focus-visible {
+
+  outline: none;
+
+  background: var(--accent);
+
+  color: var(--bg);
+
+  transform: translateY(-1px);
+
+}
+
+.ferretusz-trigger::after {
+
+  position: absolute;
+
+  right: 4px;
+
+  bottom: -6px;
+
+  left: 4px;
+
+  height: 1px;
+
+  background: var(--accent);
+
+  content: '';
+
+  opacity: 0;
+
+  transform: scaleX(0.4);
+
+  transition:
+
+    opacity 120ms ease,
+
+    transform 120ms ease;
+
+}
+
+.ferretusz-trigger:hover::after,
+
+.ferretusz-trigger:focus-visible::after {
+
+  opacity: 1;
+
+  transform: scaleX(1);
+
+}
+
+.jumpscare {
+
+  position: fixed;
+
+  z-index: 999999;
+
+  inset: 0;
+
+  display: grid;
+
   place-items: center;
-  flex-grow: 1;
 
-  @media (max-width: 1024px) {
-    padding: 32px 20px 24px;
-    gap: 18px;
-  }
+  overflow: hidden;
+
+  background: #000;
+
+  cursor: none;
+
+  animation: jumpscare-flash 90ms steps(2, end) 3;
+
 }
 
-#next-steps {
+.jumpscare img {
+
+  width: 100vw;
+
+  height: 100vh;
+
+  object-fit: cover;
+
+  user-select: none;
+
+  animation: jumpscare-hit 130ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+
+}
+
+@keyframes jumpscare-hit {
+
+  0% {
+
+    transform: scale(0.72);
+
+    filter: contrast(1.15) brightness(0.75);
+
+  }
+
+  42% {
+
+    transform: scale(1.1);
+
+    filter: contrast(1.35) brightness(1.2);
+
+  }
+
+  100% {
+
+    transform: scale(1);
+
+    filter: contrast(1.1) brightness(1);
+
+  }
+
+}
+
+@keyframes jumpscare-flash {
+
+  0%,
+
+  100% {
+
+    filter: brightness(1);
+
+  }
+
+  50% {
+
+    filter: brightness(1.35);
+
+  }
+
+}
+
+.tiny-chinese {
+
+  color: var(--accent);
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: 13px;
+
+  letter-spacing: 0;
+
+}
+
+.plain-link,
+
+.contacts-button {
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--fg);
+
+  cursor: pointer;
+
+  font-size: clamp(16px, 1.75vw, 27px);
+
+  letter-spacing: 0.04em;
+
+  text-decoration: none;
+
+}
+
+.plain-link {
+
+  transition:
+
+    color 160ms ease,
+
+    transform 160ms ease;
+
+}
+
+.plain-link:hover,
+
+.plain-link:focus-visible,
+
+.contacts-button:hover,
+
+.contacts-button:focus-visible {
+
+  color: var(--accent);
+
+  outline: none;
+
+}
+
+.hover-arrow {
+
+  display: inline-block;
+
+  margin-left: 10px;
+
+  opacity: 0;
+
+  transform: translateX(-8px);
+
+  transition:
+
+    opacity 160ms ease,
+
+    transform 160ms ease;
+
+}
+
+.plain-link:hover .hover-arrow,
+
+.plain-link:focus-visible .hover-arrow {
+
+  opacity: 1;
+
+  transform: translateX(0);
+
+}
+
+.contacts-position {
+
+  top: 21.3%;
+
+  left: 20.8%;
+
+}
+
+.contacts-button {
+
+  padding: 0;
+
+}
+
+.repo-position {
+
+  top: 40.3%;
+
+  left: 0.55%;
+
+}
+
+.github-position {
+
+  top: 62.8%;
+
+  left: 22.8%;
+
+}
+
+.chess-position {
+
+  top: 22.9%;
+
+  left: 65.2%;
+
+}
+
+.new-tag {
+
+  font-size: 0.72em;
+
+}
+
+.portfolio-position {
+
+  top: 62.8%;
+
+  left: 67%;
+
+}
+
+/* Slightly larger than the previous version. */
+
+.name-card {
+
+  top: 32.7%;
+
+  left: 50%;
+
+  width: min(39vw, 590px);
+
+  min-width: 450px;
+
+  min-height: 350px;
+
+  padding: 36px 39px 31px;
+
+  border: 1px solid var(--line);
+
+  background: var(--card);
+
+  box-shadow: var(--shadow);
+
+  transform: translateX(-50%);
+
+  backdrop-filter: blur(9px);
+
+}
+
+.name-card::before,
+
+.name-card::after {
+
+  position: absolute;
+
+  width: 16px;
+
+  height: 16px;
+
+  content: '';
+
+}
+
+.name-card::before {
+
+  top: -5px;
+
+  left: -5px;
+
+  border-top: 1px solid var(--accent);
+
+  border-left: 1px solid var(--accent);
+
+}
+
+.name-card::after {
+
+  right: -5px;
+
+  bottom: -5px;
+
+  border-right: 1px solid var(--accent);
+
+  border-bottom: 1px solid var(--accent);
+
+}
+
+.name-card-top {
+
   display: flex;
-  border-top: 1px solid var(--border);
+
+  align-items: center;
+
+  gap: 17px;
+
+}
+
+.github-avatar {
+
+  width: 82px;
+
+  height: 82px;
+
+  flex: 0 0 auto;
+
+  border: 1px solid var(--fg);
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+}
+
+.name-copy {
+
+  min-width: 0;
+
+}
+
+.card-label {
+
+  display: block;
+
+  margin-bottom: 3px;
+
+  color: var(--muted);
+
+  font-size: 8px;
+
+  letter-spacing: 0.15em;
+
+}
+
+.name-copy h1 {
+
+  margin: 0;
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: 35px;
+
+  font-weight: 500;
+
+  letter-spacing: 0.02em;
+
+}
+
+.name-copy a {
+
+  color: var(--accent);
+
+  font-size: 10px;
+
+  text-decoration: none;
+
+}
+
+.mini-seal {
+
+  display: grid;
+
+  width: 44px;
+
+  height: 44px;
+
+  margin-left: auto;
+
+  place-items: center;
+
+  border: 1px solid var(--accent);
+
+  color: var(--accent);
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: 24px;
+
+}
+
+.bio-row {
+
+  margin-top: 20px;
+
+  padding-top: 15px;
+
+  border-top: 1px solid var(--line);
+
+}
+
+.bio-row p {
+
+  margin: 4px 0 0;
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: 16px;
+
+}
+
+.activity {
+
+  min-width: 0;
+
+  margin-top: 22px;
+
+  overflow: hidden;
+
+}
+
+.activity-heading {
+
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 9px;
+
+  color: var(--muted);
+
+  font-size: 7px;
+
+  letter-spacing: 0.13em;
+
+}
+
+.activity-wrap {
+
+  width: 100%;
+
+  min-width: 0;
+
+  overflow: hidden;
+
+}
+
+.activity-grid {
+
+  display: grid;
+
+  width: 100%;
+
+  min-width: 0;
+
+  grid-auto-flow: column;
+
+  grid-template-rows: repeat(7, 7px);
+
+  grid-auto-columns: 7px;
+
+  gap: 3px;
+
+  overflow: hidden;
+
+}
+
+.activity-cell {
+
+  width: 7px;
+
+  height: 7px;
+
+  background: var(--grid-0);
+
+}
+
+.activity-cell.level-1 {
+
+  background: var(--grid-1);
+
+}
+
+.activity-cell.level-2 {
+
+  background: var(--grid-2);
+
+}
+
+.activity-cell.level-3 {
+
+  background: var(--grid-3);
+
+}
+
+.activity-cell.level-4 {
+
+  background: var(--grid-4);
+
+}
+
+.activity-loading,
+
+.activity-error {
+
+  display: flex;
+
+  min-height: 87px;
+
+  align-items: center;
+
+  justify-content: center;
+
+  border: 1px dashed var(--line);
+
+  color: var(--muted);
+
+  font-size: 8px;
+
+  letter-spacing: 0.08em;
+
+}
+
+.activity-error {
+
+  color: var(--accent);
+
+}
+
+.activity-footer {
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: space-between;
+
+  gap: 12px;
+
+}
+
+.activity-live {
+
+  display: inline-flex;
+
+  align-items: center;
+
+  gap: 5px;
+
+  margin-top: 8px;
+
+  color: var(--accent);
+
+  font-size: 7px;
+
+  letter-spacing: 0.13em;
+
+}
+
+.activity-live::before {
+
+  width: 5px;
+
+  height: 5px;
+
+  border-radius: 50%;
+
+  background: var(--accent);
+
+  content: '';
+
+}
+
+.activity-wrap small {
+
+  display: block;
+
+  margin-top: 8px;
+
+  color: var(--muted);
+
+  font-size: 7px;
+
+}
+
+.playing-position {
+
+  top: 40.9%;
+
+  left: 68%;
+
+  width: min(28vw, 410px);
+
+}
+
+.playing-line {
+
+  display: flex;
+
+  gap: 13px;
+
+  align-items: baseline;
+
+  font-size: clamp(14px, 1.45vw, 22px);
+
+  white-space: nowrap;
+
+}
+
+.music-title {
+
+  padding: 0;
+
+  border: 0;
+
+  background: transparent;
+
+  color: var(--fg);
+
+  cursor: pointer;
+
   text-align: left;
 
-  & > div {
-    flex: 1 1 0;
-    padding: 32px;
-    @media (max-width: 1024px) {
-      padding: 24px 20px;
-    }
+  white-space: nowrap;
+
+}
+
+.music-title:hover {
+
+  color: var(--accent);
+
+}
+
+.music-arrows {
+
+  display: flex;
+
+  gap: 12px;
+
+  align-items: center;
+
+  margin-top: 13px;
+
+}
+
+.music-arrows button {
+
+  width: 32px;
+
+  height: 32px;
+
+  padding: 0;
+
+  border: 1px solid var(--line);
+
+  border-radius: 50%;
+
+  background: transparent;
+
+  color: var(--fg);
+
+  cursor: pointer;
+
+}
+
+.music-arrows button:hover:not(:disabled) {
+
+  border-color: var(--accent);
+
+  color: var(--accent);
+
+}
+
+.music-arrows button:disabled {
+
+  cursor: wait;
+
+  opacity: 0.35;
+
+}
+
+.music-arrows .music-play {
+
+  border-color: var(--accent);
+
+  color: var(--accent);
+
+}
+
+.youtube-hidden {
+
+  position: fixed;
+
+  left: -9999px;
+
+  width: 1px;
+
+  height: 1px;
+
+  overflow: hidden;
+
+}
+
+.visitor-position {
+
+  bottom: 14.5%;
+
+  left: 50%;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  transform: translateX(-50%);
+
+  font-size: clamp(14px, 1.55vw, 23px);
+
+  letter-spacing: 0.04em;
+
+  white-space: nowrap;
+
+}
+
+.visitor-position strong {
+
+  color: var(--accent);
+
+  font-weight: 400;
+
+}
+
+.visitor-decoration {
+
+  color: var(--accent);
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: 13px;
+
+}
+
+.theme-switch {
+
+  top: 28px;
+
+  right: 32px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 7px 10px;
+
+  border: 1px solid var(--line);
+
+  background: var(--card);
+
+  color: var(--fg);
+
+  cursor: pointer;
+
+  font-size: 8px;
+
+  letter-spacing: 0.14em;
+
+}
+
+.theme-switch:hover {
+
+  border-color: var(--accent);
+
+  color: var(--accent);
+
+}
+
+.theme-symbol {
+
+  color: var(--accent);
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: 14px;
+
+}
+
+/*
+
+ * Contacts open away from the center card.
+
+ * Each circle has a small arrow pointing at it.
+
+ */
+
+.contact-pop {
+
+  position: absolute;
+
+  top: 50%;
+
+  right: calc(100% + 18px);
+
+  width: 1px;
+
+  height: 1px;
+
+  pointer-events: none;
+
+}
+
+.contact-item {
+
+  position: absolute;
+
+  top: 0;
+
+  right: 0;
+
+  width: 94px;
+
+  height: 94px;
+
+  opacity: 0;
+
+  transform: scale(0.2);
+
+  transition:
+
+    opacity 180ms ease,
+
+    transform 360ms cubic-bezier(0.18, 0.9, 0.3, 1.18);
+
+}
+
+.contact-pop.open {
+
+  pointer-events: auto;
+
+}
+
+.contact-pop.open .contact-item {
+
+  opacity: 1;
+
+}
+
+.contact-pop.open .contact-discord {
+
+  transform: translate(10px, -126px) scale(1);
+
+}
+
+.contact-pop.open .contact-email {
+
+  transform: translate(-104px, 10px) scale(1);
+
+}
+
+.contact-circle {
+
+  position: absolute;
+
+  inset: 0;
+
+  display: grid;
+
+  place-items: center;
+
+  border: 1px solid var(--fg);
+
+  border-radius: 50%;
+
+  background: var(--bg);
+
+  color: var(--fg);
+
+  font-size: 11px;
+
+  text-decoration: none;
+
+  transition:
+
+background 160ms ease,
+
+    color 160ms ease,
+
+    border-color 160ms ease;
+
+}
+
+.contact-circle b {
+
+  position: absolute;
+
+  top: 8px;
+
+  right: 12px;
+
+  color: var(--accent);
+
+  font-size: 10px;
+
+  font-weight: 400;
+
+}
+
+.contact-pointer {
+
+  position: absolute;
+
+  z-index: 2;
+
+  top: 36px;
+
+  right: calc(100% + 9px);
+
+  color: var(--accent);
+
+  font-size: 18px;
+
+  line-height: 1;
+
+  pointer-events: none;
+
+}
+
+.contact-circle:hover,
+
+.contact-circle:focus-visible {
+
+  border-color: var(--accent);
+
+  outline: none;
+
+  background: var(--accent);
+
+  color: var(--bg);
+
+}
+
+.contact-circle:hover b,
+
+.contact-circle:focus-visible b {
+
+  color: var(--bg);
+
+}
+
+/* Hover cards for contact details. */
+
+.contact-preview {
+
+  position: absolute;
+
+  z-index: 20;
+
+  top: 50%;
+
+  left: calc(100% + 42px);
+
+  width: max-content;
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  transform: translate(-12px, -50%) scale(0.96);
+
+  transform-origin: left center;
+
+  transition:
+
+    opacity 170ms ease,
+
+    transform 190ms ease;
+
+}
+
+.contact-item:hover .contact-preview,
+
+.contact-item:focus-within .contact-preview {
+
+  opacity: 1;
+
+  transform: translate(0, -50%) scale(1);
+
+}
+
+.preview-card {
+
+  border: 1px solid var(--line);
+
+  background: var(--card);
+
+  box-shadow: var(--shadow);
+
+  color: var(--fg);
+
+  backdrop-filter: blur(10px);
+
+}
+
+.email-preview {
+
+  width: 390px;
+
+  padding: 25px 27px;
+
+}
+
+.preview-title {
+
+  font-size: 20px;
+
+  letter-spacing: 0.07em;
+
+}
+
+.preview-rule {
+
+  height: 1px;
+
+  margin: 12px 0;
+
+  background: var(--line);
+
+}
+
+.email-preview-content {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 16px;
+
+  font-size: 16px;
+
+  white-space: nowrap;
+
+}
+
+.preview-avatar {
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 7px;
+
+}
+
+.preview-avatar img {
+
+  width: 38px;
+
+  height: 38px;
+
+  border: 1px solid var(--fg);
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+}
+
+.preview-avatar span {
+
+  font-size: 13px;
+
+}
+
+.email-address {
+
+  letter-spacing: 0.02em;
+
+}
+
+.discord-preview {
+
+  position: relative;
+
+  width: 330px;
+
+  min-height: 225px;
+
+  overflow: hidden;
+
+}
+
+.discord-banner {
+
+  height: 70px;
+
+  background:
+
+    linear-gradient(
+
+      110deg,
+
+      var(--accent),
+
+      color-mix(in srgb, var(--accent) 42%, var(--bg))
+
+    );
+
+}
+
+.discord-avatar-wrap {
+
+  position: absolute;
+
+  top: 38px;
+
+  left: 22px;
+
+}
+
+.discord-preview-avatar {
+
+  width: 70px;
+
+  height: 70px;
+
+  border: 5px solid var(--card);
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+}
+
+.discord-status {
+
+  position: absolute;
+
+  right: 2px;
+
+  bottom: 4px;
+
+  width: 13px;
+
+  height: 13px;
+
+  border: 3px solid var(--card);
+
+  border-radius: 50%;
+
+  background: #747f8d;
+
+}
+
+.discord-profile-copy {
+
+  padding: 48px 22px 21px;
+
+}
+
+.discord-profile-copy strong,
+
+.discord-profile-copy span,
+
+.discord-profile-copy small {
+
+  display: block;
+
+}
+
+.discord-profile-copy strong {
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: 21px;
+
+  font-weight: 500;
+
+}
+
+.discord-profile-copy span {
+
+  margin-top: 2px;
+
+  color: var(--muted);
+
+  font-size: 9px;
+
+}
+
+.discord-profile-copy small {
+
+  color: var(--muted);
+
+  font-size: 8px;
+
+}
+
+.portfolio-soon {
+
+  display: flex;
+
+  min-height: 100vh;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  padding: 30px;
+
+  background: var(--bg);
+
+  color: var(--fg);
+
+  text-align: center;
+
+}
+
+.soon-seal {
+
+  display: grid;
+
+  width: 58px;
+
+  height: 58px;
+
+  margin-bottom: 25px;
+
+  place-items: center;
+
+  border: 1px solid var(--accent);
+
+  color: var(--accent);
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: 29px;
+
+}
+
+.portfolio-soon > span {
+
+  color: var(--accent);
+
+  font-size: 9px;
+
+  letter-spacing: 0.2em;
+
+}
+
+.portfolio-soon h1 {
+
+  margin: 12px 0 8px;
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: clamp(44px, 8vw, 88px);
+
+  font-weight: 400;
+
+}
+
+.portfolio-soon p {
+
+  margin: 0 0 27px;
+
+  color: var(--muted);
+
+  font-size: 10px;
+
+}
+
+.portfolio-soon a {
+
+  color: var(--fg);
+
+  font-size: 11px;
+
+  text-decoration-color: var(--accent);
+
+  text-underline-offset: 5px;
+
+}
+
+
+
+
+
+@media (min-width: 901px) and (max-width: 1180px) {
+
+  .name-card {
+
+    width: 42vw;
+
+    min-width: 420px;
+
   }
 
-  .icon {
-    margin-bottom: 16px;
-    width: 22px;
-    height: 22px;
+  .contact-pop.open .contact-discord {
+
+    transform: translate(25px, -126px) scale(1);
+
   }
 
-  @media (max-width: 1024px) {
+  .contact-pop.open .contact-email {
+
+    transform: translate(-45px, 12px) scale(1);
+
+  }
+
+  .email-preview {
+
+    width: 350px;
+
+  }
+
+}
+
+@media (max-width: 900px) {
+
+  .landing {
+
+    display: flex;
+
+    min-height: 100vh;
+
     flex-direction: column;
+
+    gap: 38px;
+
+    overflow: visible;
+
+    padding: 86px 24px 46px;
+
+  }
+
+  .hello,
+
+  .contacts-position,
+
+  .repo-position,
+
+  .github-position,
+
+  .chess-position,
+
+  .portfolio-position,
+
+  .name-card,
+
+  .playing-position,
+
+  .visitor-position {
+
+    position: relative;
+
+    inset: auto;
+
+    left: auto;
+
+    top: auto;
+
+    bottom: auto;
+
+    width: 100%;
+
+    min-width: 0;
+
+    transform: none;
+
+  }
+
+  .hello {
+
+    justify-content: center;
+
+    order: 1;
+
+  }
+
+  .name-card {
+
+    order: 2;
+
+    max-width: 550px;
+
+    margin: 0 auto;
+
+  }
+
+  .contacts-position {
+
+    order: 3;
+
+  }
+
+  .repo-position {
+
+    order: 4;
+
+  }
+
+  .github-position {
+
+    order: 5;
+
+  }
+
+  .chess-position {
+
+    order: 6;
+
+  }
+
+  .playing-position {
+
+    order: 7;
+
+  }
+
+  .portfolio-position {
+
+    order: 8;
+
+  }
+
+  .visitor-position {
+
+    justify-content: center;
+
+    order: 9;
+
+    white-space: normal;
+
+    text-align: center;
+
+  }
+
+  .plain-link,
+
+  .contacts-button {
+
+    font-size: 18px;
+
+  }
+
+  .repo-position,
+
+  .github-position,
+
+  .chess-position,
+
+  .portfolio-position,
+
+  .contacts-position,
+
+  .playing-position {
+
+    padding: 16px 0;
+
+    border-bottom: 1px solid var(--line);
+
+  }
+
+  .contact-pop {
+
+    position: relative;
+
+    top: auto;
+
+    right: auto;
+
+    display: flex;
+
+    width: 100%;
+
+    height: 0;
+
+    gap: 16px;
+
+    overflow: visible;
+
+    pointer-events: none;
+
+    transition: height 250ms ease;
+
+  }
+
+  .contact-pop.open {
+
+    height: 112px;
+
+    padding-top: 15px;
+
+    pointer-events: auto;
+
+  }
+
+  .contact-item,
+
+  .contact-pop.open .contact-item,
+
+  .contact-pop.open .contact-discord,
+
+  .contact-pop.open .contact-email {
+
+    position: relative;
+
+    top: auto;
+
+    right: auto;
+
+    flex: 0 0 94px;
+
+    opacity: 1;
+
+    transform: none;
+
+  }
+
+  .contact-pop:not(.open) .contact-item {
+
+    opacity: 0;
+
+    transform: scale(0.2);
+
+  }
+
+  .contact-pointer {
+
+    display: none;
+
+  }
+
+  .contact-preview {
+
+    top: calc(100% + 12px);
+
+    right: auto;
+
+    left: 0;
+
+    transform: translateY(-8px) scale(0.96);
+
+    transform-origin: top left;
+
+  }
+
+  .contact-item:hover .contact-preview,
+
+  .contact-item:focus-within .contact-preview {
+
+    transform: translateY(0) scale(1);
+
+  }
+
+  .playing-line {
+
+    flex-wrap: wrap;
+
+    white-space: normal;
+
+  }
+
+  .theme-switch {
+
+    position: absolute;
+
+    top: 22px;
+
+    right: 22px;
+
+  }
+
+}
+
+@media (max-width: 480px) {
+
+  .landing {
+
+    padding-inline: 18px;
+
+  }
+
+  .name-card {
+
+    padding: 23px;
+
+  }
+
+  .github-avatar {
+
+    width: 58px;
+
+    height: 58px;
+
+  }
+
+  .name-copy h1 {
+
+    font-size: 24px;
+
+  }
+
+  .mini-seal {
+
+    width: 31px;
+
+    height: 31px;
+
+    font-size: 17px;
+
+  }
+
+  .activity-grid {
+
+    grid-template-rows: repeat(7, 5px);
+
+    grid-auto-columns: 5px;
+
+    gap: 2px;
+
+  }
+
+  .activity-cell {
+
+    width: 5px;
+
+    height: 5px;
+
+  }
+
+  .email-preview {
+
+    width: min(310px, calc(100vw - 36px));
+
+  }
+
+  .discord-preview {
+
+    width: min(275px, calc(100vw - 36px));
+
+  }
+
+}
+
+/* Clean contact bubbles: no arrows */
+
+.contact-pointer,
+
+.contact-circle b {
+
+  display: none !important;
+
+}
+
+/* Real email hover card */
+
+.email-contact-preview {
+
+  position: absolute;
+
+  z-index: 50;
+
+  top: 50%;
+
+  left: calc(100% + 22px);
+
+  width: 300px;
+
+  height: auto;
+
+  opacity: 0;
+
+  visibility: hidden;
+
+  pointer-events: none;
+
+  transform: translate(10px, -50%);
+
+  transition:
+
+    opacity 160ms ease,
+
+    transform 160ms ease,
+
+    visibility 160ms ease;
+
+}
+
+.contact-email:hover .email-contact-preview,
+
+.contact-email:focus-within .email-contact-preview {
+
+  opacity: 1;
+
+  visibility: visible;
+
+  transform: translate(0, -50%);
+
+}
+
+.email-contact-card {
+
+  box-sizing: border-box;
+
+  display: flex;
+
+  width: 300px;
+
+  height: 96px;
+
+  align-items: center;
+
+  gap: 14px;
+
+  padding: 13px;
+
+  overflow: hidden;
+
+  border: 1px solid var(--line);
+
+  background: var(--card);
+
+  box-shadow: var(--shadow);
+
+  color: var(--fg);
+
+  backdrop-filter: blur(10px);
+
+}
+
+.email-contact-card .email-contact-avatar {
+
+  display: block;
+
+  width: 68px !important;
+
+  min-width: 68px;
+
+  max-width: 68px !important;
+
+  height: 68px !important;
+
+  min-height: 68px;
+
+  max-height: 68px !important;
+
+  flex: 0 0 68px;
+
+  margin: 0;
+
+  border: 1px solid var(--line);
+
+  border-radius: 50%;
+
+  object-fit: cover;
+
+}
+
+.email-contact-copy {
+
+  display: flex;
+
+  min-width: 0;
+
+  flex: 1;
+
+  flex-direction: column;
+
+  align-items: flex-start;
+
+  justify-content: center;
+
+  gap: 4px;
+
+  overflow: hidden;
+
+}
+
+.email-contact-label {
+
+  color: var(--muted);
+
+  font-size: 7px;
+
+  letter-spacing: 0.18em;
+
+}
+
+.email-contact-copy strong {
+
+  color: var(--fg);
+
+  font-family: 'Noto Serif SC', serif;
+
+  font-size: 16px;
+
+  font-weight: 500;
+
+  line-height: 1.1;
+
+}
+
+.email-contact-address {
+
+  max-width: 100%;
+
+  overflow: hidden;
+
+  color: var(--muted);
+
+  font-size: 9px;
+
+  text-overflow: ellipsis;
+
+  white-space: nowrap;
+
+}
+
+@media (max-width: 900px) {
+
+  .email-contact-preview {
+
+    top: calc(100% + 14px);
+
+    left: 50%;
+
+    width: min(300px, calc(100vw - 32px));
+
+    transform: translate(-50%, 8px);
+
+  }
+
+  .contact-email:hover .email-contact-preview,
+
+  .contact-email:focus-within .email-contact-preview {
+
+    transform: translate(-50%, 0);
+
+  }
+
+  .email-contact-card {
+
+    width: 100%;
+
+  }
+
+}
+
+/* Shared hover container for the real Email + Discord cards */
+.contact-card-preview {
+  position: absolute;
+  z-index: 50;
+  top: 50%;
+  left: calc(100% + 22px);
+  width: max-content;
+  height: auto;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(10px, -50%);
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease,
+    visibility 160ms ease;
+}
+
+.contact-item:hover .contact-card-preview,
+.contact-item:focus-within .contact-card-preview {
+  opacity: 1;
+  visibility: visible;
+  transform: translate(0, -50%);
+}
+
+/* Dynamic Discord hover card */
+.discord-contact-card {
+  --discord-accent: #5865f2;
+  box-sizing: border-box;
+  width: 300px;
+  min-height: 168px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  color: var(--fg);
+  backdrop-filter: blur(10px);
+}
+
+.discord-contact-banner {
+  width: 100%;
+  height: 62px;
+  background:
+    linear-gradient(
+      115deg,
+      var(--discord-accent),
+      color-mix(in srgb, var(--discord-accent) 48%, var(--bg))
+    );
+  background-position: center;
+  background-size: cover;
+}
+
+.discord-contact-body {
+  position: relative;
+  display: flex;
+  min-height: 105px;
+  align-items: flex-end;
+  gap: 13px;
+  padding: 38px 15px 15px;
+}
+
+.discord-contact-avatar {
+  position: absolute;
+  top: -34px;
+  left: 15px;
+  display: block;
+  width: 72px !important;
+  min-width: 72px;
+  max-width: 72px !important;
+  height: 72px !important;
+  min-height: 72px;
+  max-height: 72px !important;
+  margin: 0;
+  border: 5px solid var(--card);
+  border-radius: 50%;
+  background: var(--card);
+  object-fit: cover;
+}
+
+.discord-contact-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+
+.discord-contact-label {
+  color: var(--muted);
+  font-size: 7px;
+  letter-spacing: 0.18em;
+}
+
+.discord-contact-copy strong {
+  max-width: 260px;
+  overflow: hidden;
+  color: var(--fg);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 17px;
+  font-weight: 500;
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discord-contact-username {
+  max-width: 260px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 9px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.discord-card-loading {
+  display: grid;
+  min-height: 168px;
+  place-items: center;
+  padding: 20px;
+  color: var(--muted);
+  font-size: 8px;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 900px) {
+  .contact-card-preview {
+    top: calc(100% + 14px);
+    left: 50%;
+    width: min(300px, calc(100vw - 32px));
+    transform: translate(-50%, 8px);
+  }
+
+  .contact-item:hover .contact-card-preview,
+  .contact-item:focus-within .contact-card-preview {
+    transform: translate(-50%, 0);
+  }
+
+  .email-contact-card,
+  .discord-contact-card {
+    width: 100%;
+  }
+}
+
+/* ---------------------------------------------------------
+   Centered desktop composition + Games bubble
+   --------------------------------------------------------- */
+
+.games-position {
+  position: absolute;
+  z-index: 3;
+  top: 21.3%;
+  left: calc(50% + 275px);
+  width: 310px;
+  text-align: center;
+}
+
+.games-button {
+  padding: 0;
+}
+
+.games-pop {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 18px);
+  left: 50%;
+  width: 94px;
+  height: 94px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, -8px) scale(0.82);
+  transition:
+    opacity 170ms ease,
+    transform 220ms cubic-bezier(0.18, 0.9, 0.3, 1.12),
+    visibility 170ms ease;
+}
+
+.games-position:hover .games-pop,
+.games-position:focus-within .games-pop {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0) scale(1);
+}
+
+.game-circle {
+  display: grid;
+  width: 94px;
+  height: 94px;
+  place-items: center;
+  border: 1px solid var(--fg);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 11px;
+  text-decoration: none;
+  transition:
+    background 160ms ease,
+    color 160ms ease,
+    border-color 160ms ease,
+    transform 160ms ease;
+}
+
+.game-circle:hover,
+.game-circle:focus-visible {
+  border-color: var(--accent);
+  outline: none;
+  background: var(--accent);
+  color: var(--bg);
+  transform: scale(1.04);
+}
+
+/*
+ * Keep the name card as the visual center and make the surrounding
+ * navigation symmetric around the same center axis.
+ */
+@media (min-width: 1181px) {
+  .name-card {
+    top: 32.7%;
+    left: 50%;
+  }
+
+  .hello {
+    left: 50%;
+  }
+
+  .visitor-position {
+    left: 50%;
+  }
+
+  .contacts-position {
+    top: 21.3%;
+    left: calc(50% - 520px);
+    width: 310px;
+    text-align: center;
+  }
+
+  .repo-position {
+    top: 40.3%;
+    left: calc(50% - 650px);
+    width: 390px;
+    text-align: center;
+  }
+
+  .github-position {
+    top: 62.8%;
+    left: calc(50% - 510px);
+    width: 250px;
+    text-align: center;
+  }
+
+  .games-position {
+    top: 21.3%;
+    left: calc(50% + 210px);
+    width: 310px;
+  }
+
+  .playing-position {
+    top: 40.9%;
+    left: calc(50% + 330px);
+    width: 390px;
+    text-align: center;
+  }
+
+  .playing-line,
+  .music-arrows {
+    justify-content: center;
+  }
+
+  .portfolio-position {
+    top: 62.8%;
+    left: calc(50% + 335px);
+    width: 250px;
     text-align: center;
   }
 }
 
-#docs {
-  border-right: 1px solid var(--border);
-
-  @media (max-width: 1024px) {
-    border-right: none;
-    border-bottom: 1px solid var(--border);
+@media (min-width: 901px) and (max-width: 1180px) {
+  .games-position {
+    top: 22.9%;
+    left: 65.2%;
+    width: auto;
   }
 }
 
-#next-steps ul {
-  list-style: none;
-  padding: 0;
-  display: flex;
-  gap: 8px;
-  margin: 32px 0 0;
-
-  .logo {
-    height: 18px;
+@media (max-width: 900px) {
+  .games-position {
+    position: relative;
+    inset: auto;
+    left: auto;
+    top: auto;
+    bottom: auto;
+    width: 100%;
+    order: 6;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
   }
 
-  a {
-    color: var(--text-h);
-    font-size: 16px;
-    border-radius: 6px;
-    background: var(--social-bg);
+  .games-button {
+    font-size: 18px;
+  }
+
+  .games-pop {
+    position: relative;
+    top: auto;
+    left: auto;
+    width: 100%;
+    height: 0;
+    margin: 0;
+    opacity: 0;
+    overflow: visible;
+    visibility: hidden;
+    transform: scale(0.2);
+    transform-origin: left top;
+    transition:
+      height 250ms ease,
+      opacity 180ms ease,
+      transform 250ms ease,
+      visibility 180ms ease;
+  }
+
+  .games-position:hover .games-pop,
+  .games-position:focus-within .games-pop {
+    height: 112px;
+    padding-top: 15px;
+    opacity: 1;
+    visibility: visible;
+    transform: scale(1);
+  }
+
+  .playing-position {
+    order: 7;
+  }
+
+  .portfolio-position {
+    order: 8;
+  }
+
+  .visitor-position {
+    order: 9;
+  }
+}
+
+/* ---------------------------------------------------------
+   Final desktop alignment + click-controlled Games menu
+   --------------------------------------------------------- */
+
+.games-position:hover .games-pop,
+.games-position:focus-within .games-pop {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translate(-50%, -8px) scale(0.82);
+}
+
+.games-pop.open,
+.games-position:hover .games-pop.open,
+.games-position:focus-within .games-pop.open {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translate(-50%, 0) scale(1);
+}
+
+@media (min-width: 1181px) {
+  /*
+   * Every left/right item now uses the same two column centers:
+   * left = page center - 450px
+   * right = page center + 450px
+   */
+  .contacts-position,
+  .repo-position,
+  .github-position {
+    left: calc(50% - 600px);
+    width: 300px;
+    text-align: center;
+  }
+
+  .games-position,
+  .playing-position,
+  .portfolio-position {
+    left: calc(50% + 300px);
+    width: 300px;
+    text-align: center;
+  }
+
+  .contacts-position,
+  .games-position {
+    top: 21.3%;
+  }
+
+  .repo-position,
+  .playing-position {
+    top: 40.3%;
+  }
+
+  .github-position,
+  .portfolio-position {
+    top: 62.8%;
+  }
+
+  .repo-position {
+    white-space: nowrap;
+  }
+
+  .playing-line,
+  .music-arrows {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 900px) {
+  .games-position:hover .games-pop,
+  .games-position:focus-within .games-pop {
+    height: 0;
+    padding-top: 0;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transform: scale(0.2);
+  }
+
+  .games-pop.open,
+  .games-position:hover .games-pop.open,
+  .games-position:focus-within .games-pop.open {
+    height: 112px;
+    padding-top: 15px;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+    transform: scale(1);
+  }
+}
+
+/* =========================================================
+   FINAL DESKTOP GEOMETRY
+   True center axis + protected side columns
+   ========================================================= */
+
+@media (min-width: 1181px) {
+  /*
+   * The card is exactly centered on the viewport.
+   * Side content lives in fixed-width columns that end BEFORE
+   * the card begins, so text can never run underneath it.
+   */
+  .name-card {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .hello {
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    text-align: center;
+  }
+
+  .visitor-position {
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+    text-align: center;
+  }
+
+  /* LEFT COLUMN */
+  .contacts-position,
+  .repo-position,
+  .github-position {
+    left: calc(50% - 610px);
+    width: 300px;
+    text-align: center;
+  }
+
+  /* RIGHT COLUMN */
+  .games-position,
+  .playing-position,
+  .portfolio-position {
+    left: calc(50% + 310px);
+    width: 300px;
+    text-align: center;
+  }
+
+  /* Exact matching rows */
+  .contacts-position,
+  .games-position {
+    top: 21.3%;
+  }
+
+  .repo-position,
+  .playing-position {
+    top: 40.3%;
+  }
+
+  .github-position,
+  .portfolio-position {
+    top: 62.8%;
+  }
+
+  /*
+   * These two previously overflowed their 300px columns.
+   * Allow them to wrap INSIDE their own column instead.
+   */
+  .repo-position {
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .playing-line {
     display: flex;
-    padding: 6px 12px;
-    align-items: center;
-    gap: 8px;
-    text-decoration: none;
-    transition: box-shadow 0.3s;
-
-    &:hover {
-      box-shadow: var(--shadow);
-    }
-    .button-icon {
-      height: 18px;
-      width: 18px;
-    }
-  }
-
-  @media (max-width: 1024px) {
-    margin-top: 20px;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 6px 10px;
+    white-space: normal;
+    line-height: 1.35;
+  }
 
-    li {
-      flex: 1 1 calc(50% - 8px);
-    }
+  .music-title {
+    white-space: normal;
+    text-align: center;
+  }
 
-    a {
-      width: 100%;
-      justify-content: center;
-      box-sizing: border-box;
-    }
+  .music-arrows {
+    justify-content: center;
+  }
+
+  .games-button {
+    white-space: nowrap;
   }
 }
 
-#spacer {
-  height: 88px;
-  border-top: 1px solid var(--border);
-  @media (max-width: 1024px) {
-    height: 48px;
+/*
+ * On somewhat narrower desktop screens, reduce the side-column
+ * distance but still reserve the center for the profile card.
+ */
+@media (min-width: 901px) and (max-width: 1180px) {
+  .hello {
+    left: 50%;
+    transform: translateX(-50%);
+    width: max-content;
+  }
+
+  .name-card {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .visitor-position {
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .repo-position {
+    max-width: 260px;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .playing-position {
+    max-width: 260px;
+  }
+
+  .playing-line {
+    flex-wrap: wrap;
+    white-space: normal;
+    justify-content: center;
+    line-height: 1.35;
+  }
+
+  .music-title {
+    white-space: normal;
+  }
+
+  .music-arrows {
+    justify-content: center;
   }
 }
 
-.ticks {
+/* Games bubble opens horizontally to the RIGHT of Games */
+@media (min-width: 901px) {
+  .games-pop {
+    top: 50%;
+    left: calc(100% + 22px);
+    width: 94px;
+    height: 94px;
+    transform: translate(-8px, -50%) scale(0.82);
+    transform-origin: left center;
+  }
+
+  .games-position:hover .games-pop,
+  .games-position:focus-within .games-pop {
+    transform: translate(-8px, -50%) scale(0.82);
+  }
+
+  .games-pop.open,
+  .games-position:hover .games-pop.open,
+  .games-position:focus-within .games-pop.open {
+    transform: translate(0, -50%) scale(1);
+  }
+}
+
+/* =========================================================
+   Loose bottom-page details
+   ========================================================= */
+
+/* Easy opacity control: 0.55 = 55%. */
+:root {
+  --love-note-opacity: 0.55;
+}
+
+.love-note {
+  position: absolute;
+  z-index: 2;
+  left: 25%;
+  bottom: 11.5%;
+  color: var(--fg);
+  font-family: 'Noto Serif SC', serif;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  opacity: var(--love-note-opacity);
+  transform: rotate(-2deg);
+  user-select: none;
+}
+
+.fih-desktop-icon {
+  position: absolute;
+  z-index: 4;
+  right: 18%;
+  bottom: 9%;
+  display: flex;
+  width: 62px;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  cursor: pointer;
+}
+
+.fih-desktop-icon:hover,
+.fih-desktop-icon:focus-visible {
+  outline: 1px dotted var(--muted);
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+
+.fih-file-sheet {
   position: relative;
-  width: 100%;
+  display: grid;
+  width: 31px;
+  height: 37px;
+  place-items: center;
+  border: 1px solid #777;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      #f4f4f4 0,
+      #f4f4f4 2px,
+      #d8d8d8 2px,
+      #d8d8d8 3px
+    );
+  box-shadow:
+    inset -3px -3px 0 rgba(0, 0, 0, 0.12),
+    1px 1px 0 rgba(255, 255, 255, 0.2);
+}
 
-  &::before,
-  &::after {
-    content: '';
-    position: absolute;
-    top: -4.5px;
-    border: 5px solid transparent;
+.fih-file-sheet::after {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 8px;
+  height: 8px;
+  border-bottom: 1px solid #888;
+  border-left: 1px solid #888;
+  background: #cfcfcf;
+}
+
+.fih-file-lines {
+  color: #777;
+  font-family: monospace;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.fih-file-name {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.fish-window {
+  position: fixed;
+  z-index: 100;
+  top: 50%;
+  left: 50%;
+  width: min(720px, calc(100vw - 48px));
+  height: min(560px, calc(100vh - 48px));
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+  transform: translate(-50%, -50%);
+}
+
+.fish-window-titlebar {
+  display: flex;
+  height: 34px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+  color: var(--fg);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+.fish-window-close {
+  display: grid;
+  width: 34px;
+  height: 34px;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.fish-window-close:hover,
+.fish-window-close:focus-visible {
+  outline: none;
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.fish-window-content {
+  display: flex;
+  height: calc(100% - 35px);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 30px;
+  padding: 30px;
+  overflow: auto;
+}
+
+.spinning-fish {
+  display: block;
+  width: min(390px, 70vw);
+  max-height: 65%;
+  object-fit: contain;
+}
+
+.fish-credit {
+  margin: 0;
+  color: #4d7dff;
+  font-size: 10px;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.fish-credit a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .love-note {
+    position: relative;
+    inset: auto;
+    order: 10;
+    padding: 18px 0;
+    transform: none;
   }
 
-  &::before {
-    left: 0;
-    border-left-color: var(--border);
+  .fih-desktop-icon {
+    position: relative;
+    inset: auto;
+    order: 11;
+    margin: 18px 0;
   }
-  &::after {
-    right: 0;
-    border-right-color: var(--border);
+
+  .fish-window {
+    width: calc(100vw - 24px);
+    height: calc(100vh - 24px);
+  }
+
+  .fish-window-content {
+    padding: 18px;
   }
 }
+
+
+
+/* =========================================================
+   Compact + draggable fih window
+   ========================================================= */
+
+.fish-window {
+  width: min(430px, calc(100vw - 32px));
+  height: auto;
+  min-height: 0;
+}
+
+.fish-window-titlebar {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.fish-window-titlebar:active {
+  cursor: grabbing;
+}
+
+.fish-window-content {
+  height: auto;
+  gap: 11px;
+  padding: 10px 10px 12px;
+}
+
+.spinning-fish {
+  width: min(390px, calc(100vw - 60px));
+  max-width: 100%;
+  max-height: none;
+}
+
+.fish-credit {
+  width: 100%;
+  padding: 0 5px;
+}
+
+@media (max-width: 900px) {
+  .fish-window {
+    width: min(430px, calc(100vw - 24px));
+    height: auto;
+  }
+
+  .fish-window-content {
+    padding: 9px 9px 11px;
+  }
+
+  .spinning-fish {
+    width: 100%;
+  }
+}
+
+/* =========================================================
+   Passive bottom-left GIF + fih double-click affordance
+   ========================================================= */
+
+.bottom-left-gif {
+  position: absolute;
+  z-index: 2;
+  left: 7%;
+  bottom: 7%;
+  display: block;
+  width: 96px;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+.fih-desktop-icon {
+  user-select: none;
+}
+
+@media (max-width: 900px) {
+  .bottom-left-gif {
+    position: relative;
+    inset: auto;
+    order: 10;
+    align-self: flex-start;
+    width: 86px;
+    margin: 12px 0;
+  }
+
+  .love-note {
+    order: 11;
+  }
+
+  .fih-desktop-icon {
+    order: 12;
+  }
+}
+
+/* =========================================================
+   FINAL loose-item positioning overrides
+   ========================================================= */
+
+/* Decorative GIF: always visible in the lower-left of the landing page. */
+.bottom-left-decoration {
+  position: absolute !important;
+  z-index: 8 !important;
+  left: 32px !important;
+  bottom: 32px !important;
+  display: block !important;
+  width: auto !important;
+  height: auto !important;
+  pointer-events: none;
+}
+
+.bottom-left-decoration .bottom-left-gif {
+  position: static !important;
+  inset: auto !important;
+  display: block !important;
+  width: 120px !important;
+  max-width: 18vw !important;
+  height: auto !important;
+  margin: 0 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* fih now uses the exact computer glyph requested by the user. */
+.fih-computer-icon {
+  display: block;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  font-size: 35px;
+  line-height: 1;
+  filter: grayscale(0.15);
+}
+
+.fih-file-sheet,
+.fih-file-lines {
+  display: none !important;
+}
+
+/* Keep fih as a desktop-like item and require JSX double-click to launch. */
+.fih-desktop-icon {
+  z-index: 9 !important;
+}
+
+/* Keep the Chinese note visibly in the lower area too. */
+.love-note {
+  z-index: 7 !important;
+}
+
+@media (max-width: 900px) {
+  .bottom-left-decoration {
+    position: relative !important;
+    inset: auto !important;
+    order: 10;
+    align-self: flex-start;
+    margin: 14px 0 !important;
+  }
+
+  .bottom-left-decoration .bottom-left-gif {
+    width: 100px !important;
+    max-width: 100% !important;
+  }
+
+  .love-note {
+    order: 11;
+  }
+
+  .fih-desktop-icon {
+    order: 12;
+  }
+}
+
+/* FINAL fih icon: plain retro monitor, not a colored OS emoji */
+.fih-computer-icon {
+  position: relative;
+  display: grid;
+  width: 34px;
+  height: 27px;
+  place-items: center;
+  border: 2px solid currentColor;
+  font-family: monospace;
+  font-size: 17px;
+  line-height: 1;
+  filter: none;
+}
+
+.fih-computer-icon::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7px;
+  width: 2px;
+  height: 5px;
+  background: currentColor;
+  transform: translateX(-50%);
+}
+
+.fih-computer-icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -9px;
+  width: 16px;
+  height: 2px;
+  background: currentColor;
+  transform: translateX(-50%);
+}
+
+.bottom-left-decoration {
+  left: 34px !important;
+  bottom: 34px !important;
+}
+
+.bottom-left-decoration .bottom-left-gif {
+  width: 120px !important;
+  max-width: none !important;
+}
+
+/* =========================================================
+   FINAL fih icon — Theo-style retro square
+   ========================================================= */
+
+.fih-computer-icon {
+  display: none !important;
+}
+
+.fih-retro-icon {
+  position: relative;
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  box-sizing: border-box;
+  border: 1px solid #8b8b8b;
+  background:
+    repeating-linear-gradient(
+      to bottom,
+      #eeeeee 0,
+      #eeeeee 2px,
+      #d5d5d5 2px,
+      #d5d5d5 3px
+    );
+  color: #8b8b8b;
+  box-shadow:
+    inset -3px -3px 0 rgba(0, 0, 0, 0.10),
+    inset 2px 2px 0 rgba(255, 255, 255, 0.45);
+}
+
+.fih-retro-icon::before {
+  content: '';
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  width: 9px;
+  height: 9px;
+  border-left: 1px solid #8b8b8b;
+  border-bottom: 1px solid #8b8b8b;
+  background: #cfcfcf;
+}
+
+.fih-retro-glyph {
+  position: relative;
+  z-index: 1;
+  display: block;
+  font-family: monospace;
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1;
+  color: #8a8a8a;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* The GIF lives in src/assets and is imported by App.jsx. */
+.bottom-left-decoration {
+  position: absolute !important;
+  z-index: 8 !important;
+  left: 34px !important;
+  bottom: 34px !important;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+.bottom-left-decoration .bottom-left-gif {
+  position: static !important;
+  display: block !important;
+  width: 120px !important;
+  max-width: none !important;
+  height: auto !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================
+   Smaller fih popup + matching bottom-left GIF frame
+   ========================================================= */
+
+/* Slightly smaller than the previous 430px popup. */
+.fish-window {
+  width: min(365px, calc(100vw - 32px)) !important;
+}
+
+.fish-window-titlebar {
+  height: 30px !important;
+  padding-left: 10px !important;
+}
+
+.fish-window-close {
+  width: 30px !important;
+  height: 30px !important;
+}
+
+.fish-window-content {
+  height: auto !important;
+  gap: 8px !important;
+  padding: 8px 8px 10px !important;
+}
+
+.spinning-fish {
+  width: 100% !important;
+  max-width: 347px !important;
+  height: auto !important;
+}
+
+.fish-credit {
+  padding: 0 4px !important;
+  font-size: 9px !important;
+  line-height: 1.35 !important;
+}
+
+/* Bottom-left GIF gets the same simple retro framed-window look,
+   but intentionally has no title bar and no blue credit text. */
+.bottom-left-decoration {
+  left: 34px !important;
+  bottom: 34px !important;
+  width: auto !important;
+}
+
+.bottom-left-gif-frame {
+  display: block;
+  padding: 7px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.24);
+}
+
+.bottom-left-decoration .bottom-left-gif {
+  display: block !important;
+  width: 150px !important;
+  max-width: 16vw !important;
+  height: auto !important;
+  margin: 0 !important;
+}
+
+@media (max-width: 900px) {
+  .fish-window {
+    width: min(365px, calc(100vw - 24px)) !important;
+  }
+
+  .bottom-left-decoration .bottom-left-gif {
+    width: 120px !important;
+    max-width: 100% !important;
+  }
+}
+
+/* =========================================================
+   9 Benzine draggable mini-window
+   ========================================================= */
+
+.bottom-left-decoration {
+  border: 1px solid var(--line);
+  background: var(--bg);
+  box-shadow: 0 10px 32px rgba(0, 0, 0, 0.24);
+  pointer-events: auto !important;
+}
+
+.benzine-titlebar {
+  display: flex;
+  height: 28px;
+  align-items: center;
+  padding: 0 9px;
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+  color: var(--fg);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.benzine-titlebar:active {
+  cursor: grabbing;
+}
+
+.bottom-left-gif-frame {
+  padding: 7px;
+  border: 0;
+  box-shadow: none;
+}
+
+@media (max-width: 900px) {
+  .bottom-left-decoration {
+    position: relative !important;
+    inset: auto !important;
+  }
+}
+
+/* =========================================================
+   FINAL 9 Benzine behavior: desktop icon -> popup window
+   ========================================================= */
+
+/* Hide the previous always-visible Benzine window styling. */
+.bottom-left-decoration,
+.benzine-titlebar,
+.bottom-left-gif-frame {
+  display: none !important;
+}
+
+.nine-benzine-desktop-icon {
+  position: absolute;
+  z-index: 9;
+  left: 7%;
+  bottom: 7%;
+  display: flex;
+  width: 62px;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  padding: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  cursor: default;
+  user-select: none;
+}
+
+.nine-benzine-desktop-icon:hover,
+.nine-benzine-desktop-icon:focus-visible {
+  outline: 1px dotted var(--muted);
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+}
+
+.nine-benzine-retro-glyph {
+  position: relative;
+  z-index: 1;
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1;
+  color: #7d7d7d;
+  text-shadow: 1px 1px 0 rgba(255, 255, 255, 0.7);
+}
+
+/* Same popup structure/sizing as fih, minus the blue credit. */
+.nine-benzine-window {
+  position: fixed;
+  z-index: 100;
+  top: 50%;
+  left: 50%;
+  width: min(365px, calc(100vw - 32px));
+  height: auto;
+  min-height: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.42);
+  transform: translate(-50%, -50%);
+}
+
+.nine-nine-benzine-window-titlebar {
+  display: flex !important;
+  height: 30px;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 10px;
+  border-bottom: 1px solid var(--line);
+  background: var(--card);
+  color: var(--fg);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.nine-nine-benzine-window-titlebar:active {
+  cursor: grabbing;
+}
+
+.nine-nine-benzine-window-close {
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border: 0;
+  border-left: 1px solid var(--line);
+  background: transparent;
+  color: var(--fg);
+  font: inherit;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.nine-nine-benzine-window-close:hover,
+.nine-nine-benzine-window-close:focus-visible {
+  outline: none;
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.nine-nine-benzine-window-content {
+  display: flex;
+  height: auto;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+.nine-benzine-gif {
+  display: block;
+  width: 100%;
+  max-width: 347px;
+  height: auto;
+  object-fit: contain;
+}
+
+@media (max-width: 900px) {
+  .nine-benzine-desktop-icon {
+    position: relative;
+    inset: auto;
+    order: 10;
+    margin: 18px 0;
+  }
+
+  .nine-benzine-window {
+    width: min(365px, calc(100vw - 24px));
+  }
+
+  .love-note {
+    order: 11;
+  }
+
+  .fih-desktop-icon {
+    order: 12;
+  }
+}
+
