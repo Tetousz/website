@@ -1218,6 +1218,8 @@ function MusicPlayer() {
 function VisitorLine() {
   const [visitorNumber, setVisitorNumber] =
     useState(null)
+  const [totalVisitors, setTotalVisitors] =
+    useState(null)
   const [visitorError, setVisitorError] =
     useState(false)
 
@@ -1242,14 +1244,19 @@ function VisitorLine() {
 
         const data = await response.json()
         const number = Number(data.visitorNumber)
+        const total = Number(data.totalVisitors)
 
-        if (!Number.isFinite(number)) {
+        if (
+          !Number.isFinite(number) ||
+          !Number.isFinite(total)
+        ) {
           throw new Error(
             'Visitor counter returned an invalid number'
           )
         }
 
         setVisitorNumber(number)
+        setTotalVisitors(total)
         setVisitorError(false)
       } catch (error) {
         if (error.name === 'AbortError') {
@@ -1273,25 +1280,40 @@ function VisitorLine() {
   }, [])
 
   let displayedNumber = '...'
+  let displayedTotal = '...'
 
   if (visitorError) {
     displayedNumber = '?'
-  } else if (visitorNumber !== null) {
-    displayedNumber =
-      visitorNumber.toLocaleString()
+    displayedTotal = '?'
+  } else {
+    if (visitorNumber !== null) {
+      displayedNumber =
+        visitorNumber.toLocaleString()
+    }
+
+    if (totalVisitors !== null) {
+      displayedTotal =
+        totalVisitors.toLocaleString()
+    }
   }
 
   return (
     <div className="visitor-position">
-      <span className="visitor-decoration">访</span>
+      <div className="visitor-main-line">
+        <span className="visitor-decoration">访</span>
 
-      <span>
-        You are number{' '}
-        <strong>
-          &quot;{displayedNumber}&quot;
-        </strong>{' '}
-        visitor of this site!
-      </span>
+        <span>
+          You are number{' '}
+          <strong>
+            &quot;{displayedNumber}&quot;
+          </strong>{' '}
+          visitor of this site!
+        </span>
+      </div>
+
+      <div className="visitor-total">
+        Total visitors : {displayedTotal}
+      </div>
     </div>
   )
 }

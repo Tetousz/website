@@ -8,6 +8,7 @@ const corsHeaders = {
 
 async function sha256(value: string) {
   const data = new TextEncoder().encode(value)
+
   const digest = await crypto.subtle.digest(
     'SHA-256',
     data
@@ -50,10 +51,7 @@ Deno.serve(async (req) => {
     }
 
     /*
-     * Supabase/its proxy forwards the connecting
-     * client's address to the Edge Function.
-     *
-     * We never store the raw address.
+     * Get the visitor's IP.
      */
     const forwardedFor =
       req.headers.get('x-forwarded-for')
@@ -74,8 +72,7 @@ Deno.serve(async (req) => {
     }
 
     /*
-     * Salt/hash immediately. Only this irreversible
-     * identifier is sent to the database.
+     * Never store the raw IP.
      */
     const visitorHash = await sha256(
       `${hashSecret}:${connectingIp}`
@@ -93,91 +90,100 @@ Deno.serve(async (req) => {
     )
 
     /*
-     * Try inserting the visitor.
+     * FIRST check whether this visitor already exists.
      *
-     * visitor_hash is UNIQUE, so a refresh from the
-     * same visitor cannot create another row.
-     */
-    const { error: insertError } =
-      await supabase
-        .from('site_visitors')
-        .insert({
-          visitor_hash: visitorHash,
-        })
-
-    /*
-     * PostgreSQL error 23505 = unique violation.
-     * That's expected for a returning visitor.
-     */
-    if (
-      insertError &&
-      insertError.code !== '23505'
-    ) {
-      console.error(
-        'Visitor insert failed:',
-        insertError
-      )
-
-      throw new Error(
-        'Could not register visitor'
-      )
-    }
-
-    /*
-     * Get this visitor's database ID.
-     *
-     * We DON'T display this ID directly because
-     * PostgreSQL sequence IDs can contain gaps.
+     * This prevents every page refresh from attempting
+     * an INSERT and wasting another PostgreSQL ID.
      */
     const {
-      data: visitor,
-      error: visitorError,
+      data: existingVisitor,
+      error: existingVisitorError,
     } = await supabase
       .from('site_visitors')
       .select('id')
       .eq('visitor_hash', visitorHash)
-      .single()
+      .maybeSingle()
 
-    if (visitorError || !visitor) {
+    if (existingVisitorError) {
       console.error(
         'Visitor lookup failed:',
-        visitorError
+        existingVisitorError
       )
 
       throw new Error(
-        'Could not retrieve visitor'
+        'Could not look up visitor'
       )
     }
 
+    let visitor = existingVisitor
+    let returning = true
+
     /*
-     * Calculate this visitor's actual ordinal among
-     * the visitor rows that currently exist.
+     * Only INSERT when this is actually a new visitor.
+     */
+    if (!visitor) {
+      returning = false
+
+      const {
+        data: newVisitor,
+        error: insertError,
+      } = await supabase
+        .from('site_visitors')
+        .insert({
+          visitor_hash: visitorHash,
+        })
+        .select('id')
+        .single()
+
+      if (insertError || !newVisitor) {
+        console.error(
+          'Visitor insert failed:',
+          insertError
+        )
+
+        throw new Error(
+          'Could not register visitor'
+        )
+      }
+
+      visitor = newVisitor
+    }
+
+    /*
+     * IMPORTANT:
      *
-     * Example:
+     * The database ID is NOT the visitor number.
      *
-     * Database IDs:
-     *   27
-     *   28
+     * Example database:
      *
-     * Displayed visitor numbers:
-     *   1
-     *   2
+     * id 1
+     * id 36
+     * id 40
+     *
+     * Those should display as:
+     *
+     * visitor #1
+     * visitor #2
+     * visitor #3
+     *
+     * Count all existing rows whose ID is less than
+     * or equal to this visitor's ID.
      */
     const {
       count: visitorNumber,
-      error: ordinalError,
+      error: visitorNumberError,
     } = await supabase
       .from('site_visitors')
-      .select('*', {
+      .select('id', {
         count: 'exact',
         head: true,
       })
       .lte('id', visitor.id)
 
-    if (ordinalError) {
+    if (visitorNumberError) {
       console.error(
-        'Visitor ordinal lookup failed:',
-        ordinalError
+        'Visitor number calculation failed:',
+        visitorNumberError
       )
 
       throw new Error(
@@ -186,22 +192,22 @@ Deno.serve(async (req) => {
     }
 
     /*
-     * Get total unique visitors.
+     * Count all unique visitors.
      */
     const {
       count: totalVisitors,
-      error: countError,
+      error: totalVisitorsError,
     } = await supabase
       .from('site_visitors')
-      .select('*', {
+      .select('id', {
         count: 'exact',
         head: true,
       })
 
-    if (countError) {
+    if (totalVisitorsError) {
       console.error(
-        'Visitor count failed:',
-        countError
+        'Total visitor count failed:',
+        totalVisitorsError
       )
 
       throw new Error(
@@ -213,16 +219,19 @@ Deno.serve(async (req) => {
       JSON.stringify({
         visitorNumber:
           visitorNumber ?? 0,
+
         totalVisitors:
           totalVisitors ?? 0,
-        returning:
-          insertError?.code === '23505',
+
+        returning,
       }),
       {
         headers: {
           ...corsHeaders,
+
           'Content-Type':
             'application/json',
+
           'Cache-Control':
             'no-store, no-cache, must-revalidate',
         },
@@ -240,8 +249,10 @@ Deno.serve(async (req) => {
       }),
       {
         status: 500,
+
         headers: {
           ...corsHeaders,
+
           'Content-Type':
             'application/json',
         },

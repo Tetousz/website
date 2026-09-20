@@ -3500,3 +3500,280 @@ background 160ms ease,
   }
 }
 
+
+
+/* =========================================================
+   Visitor total
+   ========================================================= */
+
+.visitor-position {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.visitor-main-line {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.visitor-total {
+  margin-top: 4px;
+  font-size: 0.68em;
+  line-height: 1.2;
+  opacity: 0.58;
+  letter-spacing: 0.03em;
+}
+
+/* =========================================================
+   MOBILE REBUILD
+   Desktop styles above are intentionally untouched.
+   ========================================================= */
+
+@media (max-width: 768px) {
+  html,
+  body,
+  #root {
+    width: 100%;
+    max-width: 100%;
+    min-height: 100%;
+    overflow-x: hidden;
+  }
+
+  .page,
+  .home-page,
+  .site-shell,
+  main {
+    max-width: 100%;
+  }
+
+  /*
+   * Turn the desktop composition into one clean mobile flow.
+   * Existing desktop absolute positioning is overridden only here.
+   */
+  .home-page {
+    position: relative;
+    display: flex;
+    width: 100%;
+    min-height: 100svh;
+    flex-direction: column;
+    box-sizing: border-box;
+    padding: 22px 16px 54px;
+    overflow: hidden;
+  }
+
+  /* Theme button */
+  .theme-toggle {
+    position: relative !important;
+    top: auto !important;
+    right: auto !important;
+    left: auto !important;
+    align-self: flex-end;
+    margin: 0 2px 34px 0;
+  }
+
+  /* Hello */
+  .hello-block,
+  .hero-greeting,
+  .intro-line {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    margin: 0 0 34px !important;
+    text-align: center !important;
+  }
+
+  /* Main profile/name card */
+  .name-card,
+  .profile-card {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    margin: 0 0 48px !important;
+  }
+
+  /* Contacts becomes a normal section instead of floating over content. */
+  .contacts-section,
+  .contacts-block,
+  .contacts {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    margin: 0 0 48px !important;
+  }
+
+  .contacts-section > h2,
+  .contacts-block > h2,
+  .contacts > h2 {
+    margin-bottom: 22px !important;
+  }
+
+  .contact-options,
+  .contact-circles,
+  .contacts-menu {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  /* Keep the two contact circles side-by-side but safely inside the phone. */
+  .contact-circle {
+    flex: 0 0 112px;
+    width: 112px !important;
+    height: 112px !important;
+  }
+
+  /* Hover cards should not overlap the next section on touch devices. */
+  .contact-preview,
+  .discord-preview,
+  .email-preview,
+  .contact-card {
+    max-width: calc(100vw - 32px) !important;
+  }
+
+  /* Desktop left/right navigation becomes one consistent mobile list. */
+  .web-source,
+  .github-link,
+  .games-section,
+  .games-block,
+  .portfolio-link,
+  .music-section,
+  .music-block {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+    margin: 0 !important;
+    padding: 28px 0 !important;
+    border-bottom: 1px solid var(--line);
+  }
+
+  /* Music gets breathing room and stays inside the viewport. */
+  .music-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 16px;
+  }
+
+  /* Games popup: flow underneath Games rather than floating across the page. */
+  .games-menu,
+  .games-popup,
+  .game-options {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 18px !important;
+  }
+
+  /* Visitor line */
+  .visitor-position {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    box-sizing: border-box;
+    margin: 44px 0 0 !important;
+    padding: 0 12px;
+    text-align: center;
+  }
+
+  .visitor-main-line {
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    line-height: 1.45;
+  }
+
+  .visitor-total {
+    margin-top: 9px;
+  }
+
+  /*
+   * Decorative desktop area.
+   * Keep the two "file" icons together instead of scattering them
+   * hundreds of pixels apart vertically.
+   */
+  .nine-benzine-desktop-icon,
+  .fih-desktop-icon {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+  }
+
+  .nine-benzine-desktop-icon {
+    align-self: flex-start;
+    margin-top: 58px !important;
+    margin-left: 12px !important;
+  }
+
+  .love-note {
+    position: relative !important;
+    inset: auto !important;
+    transform: none !important;
+    width: auto !important;
+    align-self: flex-start;
+    margin: 56px 0 0 !important;
+    opacity: var(--love-note-opacity);
+  }
+
+  .fih-desktop-icon {
+    align-self: flex-start;
+    margin-top: 56px !important;
+    margin-left: 12px !important;
+  }
+
+  /*
+   * Pop-up windows remain draggable, but initially open centered and
+   * can never be wider than the phone.
+   */
+  .fish-window,
+  .nine-benzine-window {
+    position: fixed !important;
+    width: calc(100vw - 28px) !important;
+    max-width: 365px !important;
+    max-height: calc(100svh - 28px);
+    overflow: auto;
+  }
+
+  .spinning-fish,
+  .nine-benzine-gif {
+    max-width: 100% !important;
+    height: auto !important;
+  }
+}
+
+/*
+ * Extra-small phones.
+ */
+@media (max-width: 430px) {
+  .home-page {
+    padding-right: 15px;
+    padding-left: 15px;
+  }
+
+  .contact-circle {
+    flex-basis: 104px;
+    width: 104px !important;
+    height: 104px !important;
+  }
+
+  .name-card,
+  .profile-card {
+    font-size: 0.92em;
+  }
+}
+
