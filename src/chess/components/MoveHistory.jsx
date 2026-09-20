@@ -61,6 +61,9 @@ function buildMoveHistory(
       history.push({
         index,
 
+        ply:
+          index + 1,
+
         moveNumber:
           Math.floor(
             index / 2
@@ -102,7 +105,8 @@ function buildMoveRows(
     index += 2
   ) {
     const whiteMove =
-      history[index]
+      history[index] ||
+      null
 
     const blackMove =
       history[index + 1] ||
@@ -115,12 +119,10 @@ function buildMoveRows(
         ) + 1,
 
       white:
-        whiteMove?.san ||
-        '',
+        whiteMove,
 
       black:
-        blackMove?.san ||
-        '',
+        blackMove,
     })
   }
 
@@ -129,6 +131,8 @@ function buildMoveRows(
 
 function MoveHistory({
   moves = [],
+  reviewPly = null,
+  onSelectPly,
 }) {
   const listRef =
     useRef(null)
@@ -156,6 +160,17 @@ function MoveHistory({
     )
 
   useEffect(() => {
+    /*
+     * Only auto-scroll to the newest move while LIVE.
+     * If the user is reviewing history, don't yank the
+     * move list away from the position they selected.
+     */
+    if (
+      reviewPly !== null
+    ) {
+      return
+    }
+
     const element =
       listRef.current
 
@@ -167,7 +182,39 @@ function MoveHistory({
       element.scrollHeight
   }, [
     rows.length,
+    reviewPly,
   ])
+
+  function selectPly(
+    ply
+  ) {
+    if (!onSelectPly) {
+      return
+    }
+
+    onSelectPly(
+      ply
+    )
+  }
+
+  function selectMoveNumber(
+    row
+  ) {
+    /*
+     * Clicking "2." means "show the position after
+     * move 2". If Black has moved, that's after
+     * Black's move; otherwise it's after White's.
+     */
+    const ply =
+      row.black?.ply ||
+      row.white?.ply
+
+    if (ply) {
+      selectPly(
+        ply
+      )
+    }
+  }
 
   return (
     <aside className="move-history">
@@ -215,6 +262,16 @@ function MoveHistory({
                 index ===
                 rows.length - 1
 
+              const whiteSelected =
+                reviewPly !== null &&
+                row.white?.ply ===
+                  reviewPly
+
+              const blackSelected =
+                reviewPly !== null &&
+                row.black?.ply ===
+                  reviewPly
+
               return (
                 <div
                   className={
@@ -229,25 +286,80 @@ function MoveHistory({
                   }
                 >
 
-                  <span className="move-number">
+                  <button
+                    type="button"
+                    className="move-number move-history-jump"
+                    onClick={() =>
+                      selectMoveNumber(
+                        row
+                      )
+                    }
+                    title={
+                      `View position after move ${row.moveNumber}`
+                    }
+                  >
                     {
                       row.moveNumber
                     }.
-                  </span>
+                  </button>
 
-                  <span className="move-san">
-                    {
-                      row.white ||
-                      '—'
-                    }
-                  </span>
+                  {row.white ? (
+                    <button
+                      type="button"
+                      className={
+                        `move-san move-history-jump ${
+                          whiteSelected
+                            ? 'selected'
+                            : ''
+                        }`
+                      }
+                      onClick={() =>
+                        selectPly(
+                          row.white.ply
+                        )
+                      }
+                      title={
+                        `View after ${row.white.san}`
+                      }
+                    >
+                      {
+                        row.white.san
+                      }
+                    </button>
+                  ) : (
+                    <span className="move-san">
+                      —
+                    </span>
+                  )}
 
-                  <span className="move-san">
-                    {
-                      row.black ||
-                      '—'
-                    }
-                  </span>
+                  {row.black ? (
+                    <button
+                      type="button"
+                      className={
+                        `move-san move-history-jump ${
+                          blackSelected
+                            ? 'selected'
+                            : ''
+                        }`
+                      }
+                      onClick={() =>
+                        selectPly(
+                          row.black.ply
+                        )
+                      }
+                      title={
+                        `View after ${row.black.san}`
+                      }
+                    >
+                      {
+                        row.black.san
+                      }
+                    </button>
+                  ) : (
+                    <span className="move-san">
+                      —
+                    </span>
+                  )}
 
                 </div>
               )
@@ -256,6 +368,36 @@ function MoveHistory({
         )}
 
       </div>
+
+      {history.length > 0 && (
+        <div className="move-history-review-footer">
+          {reviewPly === null ? (
+            <span>
+              LIVE · ← to review
+            </span>
+          ) : (
+            <>
+              <span>
+                {reviewPly === 0
+                  ? 'Starting position'
+                  : `Move ${reviewPly} / ${history.length}`}
+              </span>
+
+              <button
+                type="button"
+                className="move-history-live-button"
+                onClick={() =>
+                  selectPly(
+                    null
+                  )
+                }
+              >
+                Return to live
+              </button>
+            </>
+          )}
+        </div>
+      )}
 
     </aside>
   )

@@ -559,6 +559,150 @@ Deno.serve(
       }
 
       /*
+       * Authoritative 10+0 clock.
+       *
+       * clock_started_at marks when the
+       * current player's clock started.
+       * The browser never tells us how
+       * much time is left.
+       */
+      const nowMs =
+        Date.now()
+
+      const clockStartedMs =
+        Date.parse(
+          game.clock_started_at
+        )
+
+      if (
+        !Number.isFinite(
+          clockStartedMs
+        )
+      ) {
+        return errorResponse(
+          'Game clock is not initialized.',
+          500,
+        )
+      }
+
+      const elapsedMs =
+        Math.max(
+          0,
+          nowMs -
+            clockStartedMs
+        )
+
+      const storedRemainingMs =
+        playerColor === 'w'
+          ? Number(
+              game.white_time_ms
+            )
+          : Number(
+              game.black_time_ms
+            )
+
+      if (
+        !Number.isFinite(
+          storedRemainingMs
+        )
+      ) {
+        return errorResponse(
+          'Game clock is invalid.',
+          500,
+        )
+      }
+
+      const remainingMs =
+        Math.max(
+          0,
+          storedRemainingMs -
+            elapsedMs
+        )
+
+      if (
+        remainingMs <= 0
+      ) {
+        const timeoutUpdate =
+          playerColor === 'w'
+            ? {
+                white_time_ms: 0,
+                status: 'finished',
+                winner: 'black',
+                result: 'timeout',
+                clock_started_at: null,
+              }
+            : {
+                black_time_ms: 0,
+                status: 'finished',
+                winner: 'white',
+                result: 'timeout',
+                clock_started_at: null,
+              }
+
+        const {
+          data:
+            timedOutGame,
+
+          error:
+            timeoutError,
+        } =
+          await adminClient
+            .from(
+              'games'
+            )
+            .update(
+              timeoutUpdate
+            )
+            .eq(
+              'id',
+              gameId
+            )
+            .eq(
+              'fen',
+              game.fen
+            )
+            .eq(
+              'status',
+              'playing'
+            )
+            .select()
+            .maybeSingle()
+
+        if (
+          timeoutError
+        ) {
+          console.error(
+            'Timeout update error:',
+            timeoutError,
+          )
+
+          return errorResponse(
+            'Could not save timeout.',
+            500,
+          )
+        }
+
+        if (
+          timedOutGame
+        ) {
+          return jsonResponse(
+            {
+              error:
+                'Your clock expired.',
+              game:
+                timedOutGame,
+            },
+            409,
+          )
+        }
+
+        return errorResponse(
+          'The game changed before the timeout could be saved.',
+          409,
+        )
+      }
+
+      /*
        * Reconstruct the complete game
        * from our stored authoritative
        * move history.
@@ -726,6 +870,27 @@ Deno.serve(
           gameResult.finished
             ? gameResult.result
             : null,
+
+        white_time_ms:
+          playerColor === 'w'
+            ? Math.floor(
+                remainingMs
+              )
+            : game.white_time_ms,
+
+        black_time_ms:
+          playerColor === 'b'
+            ? Math.floor(
+                remainingMs
+              )
+            : game.black_time_ms,
+
+        clock_started_at:
+          gameResult.finished
+            ? null
+            : new Date(
+                nowMs
+              ).toISOString(),
       }
 
       /*

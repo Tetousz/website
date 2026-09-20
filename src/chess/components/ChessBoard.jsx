@@ -93,6 +93,7 @@ function ChessBoard({
   playerColor = null,
   fen,
   moves = [],
+  reviewPly = null,
   gameStatus = 'playing',
   winner = null,
   result = null,
@@ -155,10 +156,34 @@ function ChessBoard({
     }
 
     try {
+      const allMoves =
+        Array.isArray(moves)
+          ? moves
+          : []
+
+      const isReviewing =
+        reviewPly !== null
+
+      const visibleMoves =
+        isReviewing
+          ? allMoves.slice(
+              0,
+              Math.max(
+                0,
+                Math.min(
+                  reviewPly,
+                  allMoves.length
+                )
+              )
+            )
+          : allMoves
+
       const newGame =
         createGameFromMoves(
-          moves,
-          fen
+          visibleMoves,
+          isReviewing
+            ? null
+            : fen
         )
 
       setGame(
@@ -178,12 +203,11 @@ function ChessBoard({
       )
 
       if (
-        Array.isArray(moves) &&
-        moves.length > 0
+        visibleMoves.length > 0
       ) {
         const latestMove =
-          moves[
-            moves.length - 1
+          visibleMoves[
+            visibleMoves.length - 1
           ]
 
         setLastMove({
@@ -205,28 +229,30 @@ function ChessBoard({
       )
 
       /*
-       * Legacy games without complete
-       * move history can still display
-       * their current position from FEN.
+       * Only use the authoritative FEN fallback while LIVE.
+       * A historical position must come from its move history.
        */
-      try {
-        setGame(
-          new Chess(
-            fen
+      if (reviewPly === null) {
+        try {
+          setGame(
+            new Chess(
+              fen
+            )
           )
-        )
-      } catch (
-        fenError
-      ) {
-        console.error(
-          'Invalid FEN:',
+        } catch (
           fenError
-        )
+        ) {
+          console.error(
+            'Invalid FEN:',
+            fenError
+          )
+        }
       }
     }
   }, [
     fen,
     moves,
+    reviewPly,
   ])
 
   function getSquare(
@@ -253,6 +279,12 @@ function ChessBoard({
   ) {
     if (
       submittingMove
+    ) {
+      return
+    }
+
+    if (
+      reviewPly !== null
     ) {
       return
     }
@@ -516,6 +548,12 @@ function ChessBoard({
     }
 
     if (
+      reviewPly !== null
+    ) {
+      return
+    }
+
+    if (
       gameStatus !==
       'playing'
     ) {
@@ -735,6 +773,29 @@ function ChessBoard({
 
     if (
       result ===
+      'timeout'
+    ) {
+      if (
+        winner ===
+        'white'
+      ) {
+        return (
+          'White wins on time'
+        )
+      }
+
+      if (
+        winner ===
+        'black'
+      ) {
+        return (
+          'Black wins on time'
+        )
+      }
+    }
+
+    if (
+      result ===
       'stalemate'
     ) {
       return (
@@ -791,6 +852,25 @@ function ChessBoard({
   }
 
   function getStatus() {
+    if (
+      reviewPly !== null
+    ) {
+      const totalMoves =
+        Array.isArray(moves)
+          ? moves.length
+          : 0
+
+      if (reviewPly === 0) {
+        return (
+          `Reviewing starting position — ${totalMoves} moves total`
+        )
+      }
+
+      return (
+        `Reviewing move ${reviewPly} / ${totalMoves} — ← → to navigate`
+      )
+    }
+
     if (
       gameStatus ===
       'finished'
@@ -1055,7 +1135,8 @@ function ChessBoard({
                       )
                     }
                     disabled={
-                      submittingMove
+                      submittingMove ||
+                      reviewPly !== null
                     }
                     aria-label={
                       square

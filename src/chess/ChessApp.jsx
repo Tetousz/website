@@ -16,6 +16,8 @@ import {
 
   resignGame,
 
+  claimChessTimeout,
+
 } from './lib/games'
 
 import {
@@ -43,6 +45,39 @@ import {
 } from './lib/auth'
 
 function ChessApp() {
+
+  const [theme, setTheme] =
+    useState(() => {
+      const saved =
+        localStorage.getItem(
+          'ferretusz-theme'
+        )
+
+      if (
+        saved === 'light' ||
+        saved === 'dark'
+      ) {
+        return saved
+      }
+
+      return window.matchMedia?.(
+        '(prefers-color-scheme: dark)'
+      ).matches
+        ? 'dark'
+        : 'light'
+    })
+
+  useEffect(() => {
+    document.documentElement.dataset.theme =
+      theme
+
+    localStorage.setItem(
+      'ferretusz-theme',
+      theme
+    )
+  }, [
+    theme,
+  ])
 
   useEffect(() => {
 
@@ -94,6 +129,20 @@ function ChessApp() {
 
     <div className="chess-app">
 
+      <div
+        className="chess-background-mark chess-mark-one"
+        aria-hidden="true"
+      >
+        棋
+      </div>
+
+      <div
+        className="chess-background-mark chess-mark-two"
+        aria-hidden="true"
+      >
+        弈
+      </div>
+
       <header className="chess-header">
 
         <a
@@ -128,9 +177,39 @@ function ChessApp() {
 
           >
 
-            Portfolio
+            Home
 
           </a>
+
+          <button
+            type="button"
+            className="chess-theme-switch"
+            onClick={() =>
+              setTheme(
+                (current) =>
+                  current === 'light'
+                    ? 'dark'
+                    : 'light'
+              )
+            }
+            aria-label={`Switch to ${
+              theme === 'light'
+                ? 'dark'
+                : 'light'
+            } mode`}
+          >
+            <span className="chess-theme-symbol">
+              {theme === 'light'
+                ? '月'
+                : '日'}
+            </span>
+
+            <span>
+              {theme === 'light'
+                ? 'DARK'
+                : 'LIGHT'}
+            </span>
+          </button>
 
         </div>
 
@@ -217,6 +296,31 @@ function GamePage({
     setResigning,
 
   ] = useState(false)
+
+
+  const [
+    clockNow,
+    setClockNow,
+  ] = useState(
+    Date.now()
+  )
+
+  const [
+    claimingTimeout,
+    setClaimingTimeout,
+  ] = useState(false)
+
+
+  /*
+   * null = LIVE position.
+   * A number = how many half-moves (plies) are being reviewed.
+   * 0 means the initial starting position.
+   */
+  const [
+    reviewPly,
+    setReviewPly,
+  ] = useState(null)
+
 
   useEffect(() => {
 
@@ -333,6 +437,7 @@ function GamePage({
           },
 
           (payload) => {
+
             setGame(
 
               payload.new
@@ -581,6 +686,371 @@ function GamePage({
 
   }
 
+  /*
+   * Move-history keyboard navigation.
+   *
+   * Left Arrow:
+   *   LIVE -> previous position
+   *   review -> one move backward
+   *
+   * Right Arrow:
+   *   review -> one move forward
+   *   final position -> LIVE
+   */
+  useEffect(() => {
+    if (
+      game?.status !==
+      'playing'
+    ) {
+      return
+    }
+
+    setClockNow(Date.now())
+
+    const timer =
+      window.setInterval(
+        () => {
+          setClockNow(
+            Date.now()
+          )
+        },
+        250
+      )
+
+    return () => {
+      window.clearInterval(
+        timer
+      )
+    }
+  }, [
+    game?.status,
+    game?.clock_started_at,
+    game?.turn,
+  ])
+
+  function getClockTime(color) {
+    if (!game) {
+      return 600000
+    }
+
+    const field =
+      color === 'w'
+        ? 'white_time_ms'
+        : 'black_time_ms'
+
+    const stored =
+      Number(
+        game[field] ??
+        600000
+      )
+
+    if (
+      game.status !== 'playing' ||
+      game.turn !== color ||
+      !game.clock_started_at
+    ) {
+      return Math.max(
+        0,
+        stored
+      )
+    }
+
+    const startedAt =
+      new Date(
+        game.clock_started_at
+      ).getTime()
+
+    if (
+      !Number.isFinite(
+        startedAt
+      )
+    ) {
+      return Math.max(
+        0,
+        stored
+      )
+    }
+
+    return Math.max(
+      0,
+      stored -
+        Math.max(
+          0,
+          clockNow -
+            startedAt
+        )
+    )
+  }
+
+  const whiteClockMs =
+    getClockTime('w')
+
+  const blackClockMs =
+    getClockTime('b')
+
+  useEffect(() => {
+    if (
+      game?.status !==
+        'playing' ||
+      claimingTimeout
+    ) {
+      return
+    }
+
+    const activeClock =
+      game.turn === 'w'
+        ? whiteClockMs
+        : blackClockMs
+
+    if (activeClock > 0) {
+      return
+    }
+
+    let cancelled = false
+
+    async function finishTimeout() {
+      setClaimingTimeout(true)
+
+      try {
+        const updatedGame =
+          await claimChessTimeout(
+            game.id
+          )
+
+        if (
+          !cancelled &&
+          updatedGame
+        ) {
+          setGame(updatedGame)
+        }
+      } catch (error) {
+        console.error(
+          'Failed to claim timeout:',
+          error
+        )
+      } finally {
+        if (!cancelled) {
+          setClaimingTimeout(false)
+        }
+      }
+    }
+
+    finishTimeout()
+
+    return () => {
+      cancelled = true
+    }
+  }, [
+    game?.id,
+    game?.status,
+    game?.turn,
+    whiteClockMs,
+    blackClockMs,
+    claimingTimeout,
+  ])
+
+  function formatClock(
+    milliseconds
+  ) {
+    const totalSeconds =
+      Math.max(
+        0,
+        Math.ceil(
+          milliseconds /
+          1000
+        )
+      )
+
+    const minutes =
+      Math.floor(
+        totalSeconds / 60
+      )
+
+    const seconds =
+      totalSeconds % 60
+
+    return `${minutes}:${String(
+      seconds
+    ).padStart(2, '0')}`
+  }
+
+  function PlayerClock({
+    color,
+  }) {
+    const isWhite =
+      color === 'w'
+
+    const milliseconds =
+      isWhite
+        ? whiteClockMs
+        : blackClockMs
+
+    const name =
+      isWhite
+        ? game?.white_name
+        : game?.black_name
+
+    const isActive =
+      game?.status ===
+        'playing' &&
+      game?.turn === color
+
+    return (
+      <div
+        className={[
+          'player-clock',
+          isActive
+            ? 'active'
+            : '',
+          milliseconds <= 30000
+            ? 'low-time'
+            : '',
+        ].join(' ')}
+      >
+        <div className="player-clock-name">
+          <span className="player-clock-piece">
+            {isWhite
+              ? '♔'
+              : '♚'}
+          </span>
+
+          <span>
+            {name ||
+              (isWhite
+                ? 'White'
+                : 'Black')}
+          </span>
+
+          {isActive && (
+            <span className="player-clock-turn">
+              TURN
+            </span>
+          )}
+        </div>
+
+        <div className="player-clock-time">
+          {formatClock(
+            milliseconds
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  useEffect(() => {
+    function handleHistoryKeyDown(event) {
+      if (
+        event.key !== 'ArrowLeft' &&
+        event.key !== 'ArrowRight'
+      ) {
+        return
+      }
+
+      const target = event.target
+
+      if (
+        target instanceof HTMLElement &&
+        (
+          target.isContentEditable ||
+          target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT'
+        )
+      ) {
+        return
+      }
+
+      const moveCount =
+        Array.isArray(game?.moves)
+          ? game.moves.length
+          : 0
+
+      if (moveCount === 0) {
+        return
+      }
+
+      if (event.key === 'ArrowLeft') {
+        event.preventDefault()
+
+        setReviewPly((current) => {
+          if (current === null) {
+            return Math.max(
+              0,
+              moveCount - 1
+            )
+          }
+
+          return Math.max(
+            0,
+            current - 1
+          )
+        })
+
+        return
+      }
+
+      if (reviewPly === null) {
+        return
+      }
+
+      event.preventDefault()
+
+      setReviewPly((current) => {
+        if (current === null) {
+          return null
+        }
+
+        const next =
+          current + 1
+
+        if (next >= moveCount) {
+          return null
+        }
+
+        return next
+      })
+    }
+
+    window.addEventListener(
+      'keydown',
+      handleHistoryKeyDown
+    )
+
+    return () => {
+      window.removeEventListener(
+        'keydown',
+        handleHistoryKeyDown
+      )
+    }
+  }, [
+    game?.moves,
+    reviewPly,
+  ])
+
+  function handleSelectHistoryPly(
+    ply
+  ) {
+    const moveCount =
+      Array.isArray(game?.moves)
+        ? game.moves.length
+        : 0
+
+    if (
+      ply === null ||
+      ply >= moveCount
+    ) {
+      setReviewPly(null)
+      return
+    }
+
+    setReviewPly(
+      Math.max(
+        0,
+        ply
+      )
+    )
+  }
+
   function getResultText() {
 
     if (
@@ -672,6 +1142,48 @@ function GamePage({
         return (
 
           'Black wins by resignation.'
+
+        )
+
+      }
+
+    }
+
+    if (
+
+      game.result ===
+
+      'timeout'
+
+    ) {
+
+      if (
+
+        game.winner ===
+
+        'white'
+
+      ) {
+
+        return (
+
+          'White wins on time.'
+
+        )
+
+      }
+
+      if (
+
+        game.winner ===
+
+        'black'
+
+      ) {
+
+        return (
+
+          'Black wins on time.'
 
         )
 
@@ -1131,6 +1643,16 @@ function GamePage({
 
       <div className="game-play-area">
 
+        <div className="board-clock-column">
+
+          <PlayerClock
+            color={
+              playerColor === 'b'
+                ? 'w'
+                : 'b'
+            }
+          />
+
         <ChessBoard
 
           gameId={
@@ -1155,6 +1677,10 @@ function GamePage({
 
             game.moves || []
 
+          }
+
+          reviewPly={
+            reviewPly
           }
 
           gameStatus={
@@ -1183,12 +1709,30 @@ function GamePage({
 
         />
 
+          <PlayerClock
+            color={
+              playerColor === 'b'
+                ? 'b'
+                : 'w'
+            }
+          />
+
+        </div>
+
         <MoveHistory
 
           moves={
 
             game.moves || []
 
+          }
+
+          reviewPly={
+            reviewPly
+          }
+
+          onSelectPly={
+            handleSelectHistoryPly
           }
 
         />

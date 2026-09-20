@@ -43,6 +43,28 @@ export async function getGame(
   return data
 }
 
+
+export async function claimChessTimeout(
+  gameId
+) {
+  const {
+    data,
+    error,
+  } = await supabase.rpc(
+    'claim_chess_timeout',
+    {
+      target_game_id:
+        gameId,
+    }
+  )
+
+  if (error) {
+    throw error
+  }
+
+  return data
+}
+
 export async function getActiveGameForUser(
   userId
 ) {
