@@ -8,10 +8,15 @@ const corsHeaders = {
 
 async function sha256(value: string) {
   const data = new TextEncoder().encode(value)
-  const digest = await crypto.subtle.digest('SHA-256', data)
+  const digest = await crypto.subtle.digest(
+    'SHA-256',
+    data
+  )
 
   return Array.from(new Uint8Array(digest))
-    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .map((byte) =>
+      byte.toString(16).padStart(2, '0')
+    )
     .join('')
 }
 
@@ -27,7 +32,9 @@ Deno.serve(async (req) => {
       Deno.env.get('SUPABASE_URL')
 
     const serviceRoleKey =
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+      Deno.env.get(
+        'SUPABASE_SERVICE_ROLE_KEY'
+      )
 
     const hashSecret =
       Deno.env.get('VISITOR_HASH_SECRET')
@@ -117,7 +124,10 @@ Deno.serve(async (req) => {
     }
 
     /*
-     * Get this visitor's permanent ordinal.
+     * Get this visitor's database ID.
+     *
+     * We DON'T display this ID directly because
+     * PostgreSQL sequence IDs can contain gaps.
      */
     const {
       data: visitor,
@@ -140,10 +150,46 @@ Deno.serve(async (req) => {
     }
 
     /*
+     * Calculate this visitor's actual ordinal among
+     * the visitor rows that currently exist.
+     *
+     * Example:
+     *
+     * Database IDs:
+     *   27
+     *   28
+     *
+     * Displayed visitor numbers:
+     *   1
+     *   2
+     */
+    const {
+      count: visitorNumber,
+      error: ordinalError,
+    } = await supabase
+      .from('site_visitors')
+      .select('*', {
+        count: 'exact',
+        head: true,
+      })
+      .lte('id', visitor.id)
+
+    if (ordinalError) {
+      console.error(
+        'Visitor ordinal lookup failed:',
+        ordinalError
+      )
+
+      throw new Error(
+        'Could not determine visitor number'
+      )
+    }
+
+    /*
      * Get total unique visitors.
      */
     const {
-      count,
+      count: totalVisitors,
       error: countError,
     } = await supabase
       .from('site_visitors')
@@ -165,15 +211,18 @@ Deno.serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        visitorNumber: visitor.id,
-        totalVisitors: count ?? 0,
+        visitorNumber:
+          visitorNumber ?? 0,
+        totalVisitors:
+          totalVisitors ?? 0,
         returning:
           insertError?.code === '23505',
       }),
       {
         headers: {
           ...corsHeaders,
-          'Content-Type': 'application/json',
+          'Content-Type':
+            'application/json',
           'Cache-Control':
             'no-store, no-cache, must-revalidate',
         },
@@ -193,7 +242,8 @@ Deno.serve(async (req) => {
         status: 500,
         headers: {
           ...corsHeaders,
-          'Content-Type': 'application/json',
+          'Content-Type':
+            'application/json',
         },
       }
     )
