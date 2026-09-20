@@ -782,11 +782,62 @@ function GamePage({
     )
   }
 
-  const whiteClockMs =
+  const liveWhiteClockMs =
     getClockTime('w')
 
-  const blackClockMs =
+  const liveBlackClockMs =
     getClockTime('b')
+
+  /*
+   * Every new move stores an authoritative snapshot of
+   * BOTH clocks. While reviewing, use that snapshot
+   * instead of the live clocks. Ply 0 is the initial
+   * 10:00 / 10:00 position.
+   */
+  const reviewedMove =
+    reviewPly !== null &&
+    reviewPly > 0 &&
+    Array.isArray(game?.moves)
+      ? game.moves[
+          reviewPly - 1
+        ]
+      : null
+
+  const reviewWhiteClockMs =
+    reviewPly === 0
+      ? 600000
+      : Number.isFinite(
+          Number(
+            reviewedMove?.whiteTimeMs
+          )
+        )
+        ? Number(
+            reviewedMove.whiteTimeMs
+          )
+        : null
+
+  const reviewBlackClockMs =
+    reviewPly === 0
+      ? 600000
+      : Number.isFinite(
+          Number(
+            reviewedMove?.blackTimeMs
+          )
+        )
+        ? Number(
+            reviewedMove.blackTimeMs
+          )
+        : null
+
+  const whiteClockMs =
+    reviewPly === null
+      ? liveWhiteClockMs
+      : reviewWhiteClockMs
+
+  const blackClockMs =
+    reviewPly === null
+      ? liveBlackClockMs
+      : reviewBlackClockMs
 
   useEffect(() => {
     if (
@@ -799,8 +850,8 @@ function GamePage({
 
     const activeClock =
       game.turn === 'w'
-        ? whiteClockMs
-        : blackClockMs
+        ? liveWhiteClockMs
+        : liveBlackClockMs
 
     if (activeClock > 0) {
       return
@@ -844,14 +895,24 @@ function GamePage({
     game?.id,
     game?.status,
     game?.turn,
-    whiteClockMs,
-    blackClockMs,
+    liveWhiteClockMs,
+    liveBlackClockMs,
     claimingTimeout,
   ])
 
   function formatClock(
     milliseconds
   ) {
+    if (
+      milliseconds === null ||
+      milliseconds === undefined ||
+      !Number.isFinite(
+        Number(milliseconds)
+      )
+    ) {
+      return '--:--'
+    }
+
     const totalSeconds =
       Math.max(
         0,
@@ -890,10 +951,19 @@ function GamePage({
         ? game?.white_name
         : game?.black_name
 
+    const displayedTurn =
+      reviewPly === null
+        ? game?.turn
+        : reviewPly % 2 === 0
+          ? 'w'
+          : 'b'
+
     const isActive =
-      game?.status ===
-        'playing' &&
-      game?.turn === color
+      reviewPly !== null
+        ? displayedTurn === color
+        : game?.status ===
+            'playing' &&
+          displayedTurn === color
 
     return (
       <div
@@ -902,6 +972,7 @@ function GamePage({
           isActive
             ? 'active'
             : '',
+          milliseconds !== null &&
           milliseconds <= 30000
             ? 'low-time'
             : '',

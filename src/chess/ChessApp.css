@@ -3475,3 +3475,4 @@ button.move-san.move-history-jump.selected {
   }
 }
 
+\n\n/* Clock snapshots shown beside each historical move. */\nbutton.move-san.move-history-jump {\n  display: flex;\n  align-items: center;\n  justify-content: space-between;\n  gap: 6px;\n}\n\n.move-clock-snapshot {\n  color: var(--muted);\n  font-size: 7px;\n  font-weight: 400;\n  font-variant-numeric: tabular-nums;\n  opacity: 0.72;\n}\n\nbutton.move-san.move-history-jump:hover .move-clock-snapshot {\n  color: var(--accent);\n}\n\nbutton.move-san.move-history-jump.selected .move-clock-snapshot {\n  color: var(--bg);\n  opacity: 0.78;\n}\n

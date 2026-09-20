@@ -5,6 +5,9 @@ type StoredMove = {
   from: string
   to: string
   promotion?: string
+  whiteTimeMs?: number
+  blackTimeMs?: number
+  movedAt?: string
 }
 
 type MoveRequest = {
@@ -813,6 +816,23 @@ Deno.serve(
        * Store only what is required
        * to reconstruct this move.
        */
+      /*
+       * Freeze both clocks at the exact instant this
+       * move was accepted. Besides powering replay,
+       * these snapshots make it impossible for the UI
+       * to accidentally associate the mover's remaining
+       * time with the opponent after the turn flips.
+       */
+      const whiteTimeAfterMove =
+        playerColor === 'w'
+          ? Math.floor(remainingMs)
+          : Number(game.white_time_ms)
+
+      const blackTimeAfterMove =
+        playerColor === 'b'
+          ? Math.floor(remainingMs)
+          : Number(game.black_time_ms)
+
       const storedMove:
         StoredMove = {
         from:
@@ -820,6 +840,15 @@ Deno.serve(
 
         to:
           move.to,
+
+        whiteTimeMs:
+          whiteTimeAfterMove,
+
+        blackTimeMs:
+          blackTimeAfterMove,
+
+        movedAt:
+          new Date(nowMs).toISOString(),
       }
 
       if (
@@ -872,18 +901,10 @@ Deno.serve(
             : null,
 
         white_time_ms:
-          playerColor === 'w'
-            ? Math.floor(
-                remainingMs
-              )
-            : game.white_time_ms,
+          whiteTimeAfterMove,
 
         black_time_ms:
-          playerColor === 'b'
-            ? Math.floor(
-                remainingMs
-              )
-            : game.black_time_ms,
+          blackTimeAfterMove,
 
         clock_started_at:
           gameResult.finished

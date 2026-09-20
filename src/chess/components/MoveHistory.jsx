@@ -80,6 +80,20 @@ function buildMoveHistory(
 
         to:
           move.to,
+
+        whiteTimeMs:
+          Number.isFinite(
+            Number(storedMove.whiteTimeMs)
+          )
+            ? Number(storedMove.whiteTimeMs)
+            : null,
+
+        blackTimeMs:
+          Number.isFinite(
+            Number(storedMove.blackTimeMs)
+          )
+            ? Number(storedMove.blackTimeMs)
+            : null,
       })
     } catch (error) {
       console.warn(
@@ -127,6 +141,32 @@ function buildMoveRows(
   }
 
   return rows
+}
+
+function formatMoveClock(milliseconds) {
+  if (
+    milliseconds === null ||
+    milliseconds === undefined ||
+    !Number.isFinite(Number(milliseconds))
+  ) {
+    return null
+  }
+
+  const totalSeconds =
+    Math.max(
+      0,
+      Math.ceil(
+        Number(milliseconds) / 1000
+      )
+    )
+
+  const minutes =
+    Math.floor(totalSeconds / 60)
+
+  const seconds =
+    totalSeconds % 60
+
+  return `${minutes}:${String(seconds).padStart(2, '0')}`
 }
 
 function MoveHistory({
@@ -322,9 +362,10 @@ function MoveHistory({
                         `View after ${row.white.san}`
                       }
                     >
-                      {
-                        row.white.san
-                      }
+                      <span>
+                        {row.white.san}
+                      </span>
+
                     </button>
                   ) : (
                     <span className="move-san">
@@ -351,9 +392,10 @@ function MoveHistory({
                         `View after ${row.black.san}`
                       }
                     >
-                      {
-                        row.black.san
-                      }
+                      <span>
+                        {row.black.san}
+                      </span>
+
                     </button>
                   ) : (
                     <span className="move-san">
